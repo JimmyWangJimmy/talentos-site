@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { dict, url } from '../i18n.js';
+const { lang } = Astro.props; const t = dict[lang]; const h = t.home;
+---
+<Base lang={lang} page="home" title={h.title}>
+<div class="wrap">
+<section class="hero"><p class="eyebrow">{h.eyebrow}</p><h1>{h.headline}</h1><p class="sub">{h.sub}</p>
+<div class="btns"><a class="btn primary" href={url(lang,'contact')}>{h.cta}</a><a class="btn" href={url(lang,'services')}>{h.cta2}</a></div></section>
+<section class="block"><div class="grid">{h.pillars.map(p => <div><h3>{p.title}</h3><p>{p.body}</p></div>)}</div></section>
+<section class="block"><h2>{h.updatesTitle}</h2>{h.updates.map(u => <div class="item"><p class="date">{u.date}</p><h3>{u.title}</h3><p>{u.body}</p></div>)}</section>
+</div></Base>

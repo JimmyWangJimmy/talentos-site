@@ -1,0 +1,23 @@
+name: Deploy to GitHub Pages
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+permissions: { contents: read, pages: write, id-token: write }
+concurrency: { group: pages, cancel-in-progress: false }
+env:
+  # Preview on github.io. For www.agentbay.asia change to: SITE_URL https://www.agentbay.asia, SITE_BASE /
+  SITE_URL: https://jimmywangjimmy.github.io
+  SITE_BASE: /talentos-site
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: withastro/action@v3
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: '${{ steps.deployment.outputs.page_url }}' }
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,71 @@
+---
+import { dict, url, asset } from '../i18n.js';
+import theme from '../content/theme.json';
+const { lang = 'zh', page = 'home', title, description } = Astro.props;
+const t = dict[lang];
+const other = lang === 'zh' ? 'en' : 'zh';
+const keys = ['services', 'research', 'about', 'contact'];
+const desc = description || t.home.description;
+const canonical = new URL(url(lang, page), Astro.site).href;
+---
+<!doctype html>
+<html lang={t.lang}>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{title}</title>
+<meta name="description" content={desc} />
+<link rel="canonical" href={canonical} />
+<link rel="alternate" hreflang="zh-CN" href={new URL(url('zh', page), Astro.site).href} />
+<link rel="alternate" hreflang="en" href={new URL(url('en', page), Astro.site).href} />
+<link rel="icon" href={asset('favicon.svg')} type="image/svg+xml" />
+<meta name="theme-color" content={theme.bg} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={desc} />
+<style define:vars={theme} is:global>
+:root{--max:1120px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:17px}
+a{color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+header{border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;text-decoration:none;letter-spacing:-.01em}
+nav ul{display:flex;gap:22px;list-style:none;flex-wrap:wrap;align-items:center}
+nav a{text-decoration:none;font-size:15px;color:var(--muted);padding:6px 0;display:inline-block}
+nav a:hover,nav a[aria-current]{color:var(--ink)}
+.lang{border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+main{min-height:60vh}
+.hero{padding:112px 0 88px}
+.eyebrow{color:var(--accent);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px}
+h1{font-size:clamp(36px,6.4vw,72px);line-height:1.12;letter-spacing:-.025em;font-weight:700;max-width:16em}
+.sub{font-size:clamp(18px,2.2vw,22px);color:var(--muted);max-width:36em;margin-top:28px}
+.btns{display:flex;gap:14px;margin-top:40px;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 24px;border-radius:999px;text-decoration:none;font-weight:600;font-size:16px;border:1px solid var(--ink)}
+.btn.primary{background:var(--ink);color:var(--bg)}
+section.block{padding:72px 0;border-top:1px solid var(--line)}
+h2{font-size:clamp(26px,3.4vw,38px);letter-spacing:-.02em;line-height:1.2;margin-bottom:36px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:40px}
+.grid h3{font-size:20px;margin-bottom:10px}
+.grid p,.item p{color:var(--muted)}
+.price{margin-top:14px;font-weight:600;color:var(--accent)}
+.item{padding:28px 0;border-bottom:1px solid var(--line)}
+.date{font-size:14px;color:var(--muted)}
+.mail{font-size:clamp(24px,4vw,44px);font-weight:700;color:var(--accent);text-decoration:none;word-break:break-all}
+footer{border-top:1px solid var(--line);padding:40px 0;color:var(--muted);font-size:14px}
+@media (prefers-color-scheme:dark){:root{--bg:#0E0E0E;--ink:#F3F2EF;--muted:#A3A3A3;--line:#262626;--accent:var(--accentDark)}}
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+<a class="logo" href={url(lang,'home')}><img src={asset('logo.svg')} width="28" height="28" alt="" />{t.brand}</a>
+<nav aria-label="Main"><ul>
+{keys.map(k => <li><a href={url(lang,k)} aria-current={k===page ? 'page' : undefined}>{t.nav[k]}</a></li>)}
+<li><a class="lang" href={url(other,page)} hreflang={other==='zh'?'zh-CN':'en'} lang={other==='zh'?'zh-CN':'en'}>{t.nav.switch}</a></li>
+</ul></nav>
+</div></header>
+<main><slot /></main>
+<footer><div class="wrap">{t.footer} · <a href={`mailto:${t.contact.email}`}>{t.contact.email}</a></div></footer>
+</body>
+</html>

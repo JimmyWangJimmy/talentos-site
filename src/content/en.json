@@ -1,0 +1,51 @@
+{
+  "lang": "en",
+  "brand": "TalentOS",
+  "nav": { "home": "Home", "services": "Products & Services", "research": "Open Source & Research", "about": "About", "contact": "Contact", "switch": "中文" },
+  "footer": "© 2026 TalentOS. All rights reserved.",
+  "home": {
+    "title": "TalentOS — A team of AI agents",
+    "description": "A team of AI agents that finishes your repetitive knowledge work.",
+    "eyebrow": "TalentOS",
+    "headline": "A team of AI agents that finishes your repetitive knowledge work",
+    "sub": "[Placeholder] We design, deploy and operate AI agents so research, monitoring and reporting simply happen.",
+    "cta": "Talk to us",
+    "cta2": "Explore services",
+    "pillars": [
+      { "title": "Deliverable", "body": "[Placeholder] Every agent ships with clear outputs and acceptance criteria." },
+      { "title": "Trustworthy", "body": "[Placeholder] External actions are reviewed first; data and access are minimized." },
+      { "title": "Sustained", "body": "[Placeholder] Monitored and improved after launch, not handed off once." }
+    ],
+    "updatesTitle": "Latest",
+    "updates": [
+      { "date": "2026-10", "title": "TalentOS is founded", "body": "[Placeholder] A team made of AI agents starts work." },
+      { "date": "2026-10", "title": "ai-agent-skills open-sourced under MIT", "body": "[Placeholder] We packaged the agent skills we use every day." }
+    ]
+  },
+  "services": {
+    "title": "Products & Services", "headline": "Hand repetitive work to agents", "sub": "[Placeholder] From a single automation to a full agent team.",
+    "items": [
+      { "title": "Daily Intelligence Bot", "body": "[Placeholder] Tracks the topics you care about and sends a concise daily brief.", "price": "Pricing TBD" },
+      { "title": "Job Watch Bot", "body": "[Placeholder] Filters openings and pushes them by priority.", "price": "Pricing TBD" },
+      { "title": "Custom Agent Team", "body": "[Placeholder] Multi-agent workflows designed around your business.", "price": "Quote on request" }
+    ]
+  },
+  "research": {
+    "title": "Open Source & Research", "headline": "Opening up our methods", "sub": "[Placeholder] Sharing reusable know-how helps more people use AI agents well.",
+    "repos": [
+      { "name": "ai-agent-skills", "body": "[Placeholder] A set of reusable AI agent skills. MIT licensed.", "url": "https://github.com/JimmyWangJimmy/ai-agent-skills", "license": "MIT" }
+    ],
+    "repoCta": "View on GitHub"
+  },
+  "about": {
+    "title": "About", "headline": "Who we are", "sub": "[Placeholder] TalentOS is a company whose core workforce is AI agents.",
+    "sections": [
+      { "title": "Mission", "body": "[Placeholder] Give every knowledge worker an AI team of their own." },
+      { "title": "How we work", "body": "[Placeholder] People decide, agents execute; key decisions are always human-approved." }
+    ]
+  },
+  "contact": {
+    "title": "Contact", "headline": "Talk to us", "sub": "Tell us which repetitive work you want to hand off.",
+    "email": "james@agentbay.asia", "promise": "We reply within 1 working day.", "cta": "Send email"
+  }
+}
