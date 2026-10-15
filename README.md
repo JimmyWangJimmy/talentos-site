@@ -1,6 +1,10 @@
 # talentos-site
 
-TalentOS brand website (Astro, static, zero client JS). Deployed to GitHub Pages by `.github/workflows/deploy.yml`.
+TalentOS brand website (Astro, static, zero client JS). ## Deploy (current)
+Pages serves the `gh-pages` branch (build_type=legacy). Run `./deploy.sh` (build + force-push dist/ to gh-pages).
+The gh token on the box lacks the `workflow` scope, so the Actions workflow (withastro/action) is parked at `deploy/deploy.yml`.
+To switch to Actions: `gh auth refresh -s workflow` (Jimmy signs in), `mkdir -p .github/workflows && git mv deploy/deploy.yml .github/workflows/`, push, then
+`gh api -X PUT repos/JimmyWangJimmy/talentos-site/pages -f build_type=workflow`.
 
 ## Edit content
 All copy lives in `src/content/`:
@@ -11,9 +15,9 @@ Logo: replace `public/logo.svg` and `public/favicon.svg`.
 Keep the JSON keys; only change values. Run `npm run build` to check, then push to `main`.
 
 ## Switch to www.agentbay.asia (after the DNS CNAME www -> jimmywangjimmy.github.io exists)
-1. In `.github/workflows/deploy.yml` set `SITE_URL: https://www.agentbay.asia` and `SITE_BASE: /`.
+1. In `astro.config.mjs` change the defaults to `site: 'https://www.agentbay.asia'`, `base: '/'` (or set SITE_URL/SITE_BASE env in deploy.sh / the workflow).
 2. `cp CNAME.custom-domain public/CNAME`
-3. Commit + push to main.
+3. Commit + push to main, then `./deploy.sh`.
 4. IT运维 sets the Pages custom domain: `gh api -X PUT repos/JimmyWangJimmy/talentos-site/pages -f cname=www.agentbay.asia`
 5. When the certificate is issued (check `gh api repos/JimmyWangJimmy/talentos-site/pages --jq .https_certificate.state` = `approved`):
    `gh api -X PUT repos/JimmyWangJimmy/talentos-site/pages -F https_enforced=true`
