@@ -35,6 +35,7 @@ header{border-bottom:1px solid var(--line)}
 nav ul{display:flex;gap:22px;list-style:none;flex-wrap:wrap;align-items:center}
 nav a{text-decoration:none;font-size:15px;color:var(--muted);padding:6px 0;display:inline-block}
 nav a:hover,nav a[aria-current]{color:var(--ink)}
+.pill{border:1px solid var(--ink);border-radius:999px;padding:4px 14px;color:var(--ink)!important}
 .lang{border:1px solid var(--line);border-radius:999px;padding:4px 12px}
 main{min-height:60vh}
 .hero{padding:112px 0 88px}
@@ -53,6 +54,14 @@ h2{font-size:clamp(26px,3.4vw,38px);letter-spacing:-.02em;line-height:1.2;margin
 .item{padding:28px 0;border-bottom:1px solid var(--line)}
 .date{font-size:14px;color:var(--muted)}
 .mail{font-size:clamp(24px,4vw,44px);font-weight:700;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:8px;word-break:break-all}
+.prose p,.prose li{color:var(--muted);max-width:42em}
+.prose p+p,.prose p+ul,.prose ul+p,.prose ol+p{margin-top:14px}
+.prose ul,.prose ol{padding-left:1.2em}.prose li{margin:8px 0}
+.prose strong{color:var(--ink)}
+.prose a{color:var(--ink);text-decoration-color:var(--accent);text-underline-offset:4px;word-break:break-word}
+.hero .prose a{display:inline-block;margin-top:24px;padding:13px 24px;border-radius:999px;background:var(--accent);color:var(--ink);text-decoration:none;font-weight:600;font-size:16px}
+.slim{border-top:1px solid var(--line);padding:28px 0;font-size:16px}
+section.block h2{margin-bottom:20px}
 footer{border-top:1px solid var(--line);padding:40px 0;color:var(--muted);font-size:14px}
 </style>
 </head>
@@ -61,10 +70,11 @@ footer{border-top:1px solid var(--line);padding:40px 0;color:var(--muted);font-s
 <a class="logo" href={url(lang,'home')} aria-label={t.brand}><img src={asset('talentos-wordmark-light.svg')} width="139" height="32" alt={t.brand} /></a>
 <nav aria-label="Main"><ul>
 {keys.map(k => <li><a href={url(lang,k)} aria-current={k===page ? 'page' : undefined}>{t.nav[k]}</a></li>)}
+<li><a class="pill" href={`${url(lang,'contact')}#checkup`}>{t.nav.checkup}</a></li>
 <li><a class="lang" href={url(other,page)} hreflang={other==='zh'?'zh-CN':'en'} lang={other==='zh'?'zh-CN':'en'}>{t.nav.switch}</a></li>
 </ul></nav>
 </div></header>
 <main><slot /></main>
-<footer><div class="wrap">{t.footer} · <a href={`mailto:${t.contact.email}`}>{t.contact.email}</a></div></footer>
+<footer><div class="wrap"><a href={`mailto:${t.contact.email}`}>{t.contact.email}</a> · <a href="https://x.com/KingOfRW" rel="noopener">X @KingOfRW</a> · <a href="https://github.com/JimmyWangJimmy/ai-agent-skills" rel="noopener">GitHub</a> · {t.footer}</div></footer>
 </body>
 </html>

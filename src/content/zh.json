@@ -1,51 +1,17 @@
 {
   "lang": "zh-CN",
   "brand": "TalentOS",
-  "nav": { "home": "首页", "services": "产品与服务", "research": "开源与研究", "about": "关于", "contact": "联系", "switch": "EN" },
+  "nav": {
+    "home": "首页",
+    "services": "产品与服务",
+    "research": "开源与研究",
+    "about": "关于",
+    "contact": "联系",
+    "switch": "EN",
+    "checkup": "预约体检"
+  },
   "footer": "© 2026 TalentOS. 保留所有权利。",
-  "home": {
-    "title": "TalentOS — 一支 AI Agent 团队",
-    "description": "一支 AI Agent 团队，替你把重复的知识工作做完。",
-    "eyebrow": "TalentOS",
-    "headline": "一支 AI Agent 团队，替你把重复的知识工作做完",
-    "sub": "【占位文案】我们设计、部署并持续运营 AI Agent，让调研、监控、整理与汇报这类工作自动发生。",
-    "cta": "与我们聊聊",
-    "cta2": "了解服务",
-    "pillars": [
-      { "title": "可交付", "body": "【占位】每个 Agent 都有明确的产出与验收标准。" },
-      { "title": "可信赖", "body": "【占位】对外动作先审后发，数据与权限最小化。" },
-      { "title": "可持续", "body": "【占位】上线后持续监控与迭代，而不是一次性交付。" }
-    ],
-    "updatesTitle": "最新动态",
-    "updates": [
-      { "date": "2026-10", "title": "TalentOS 成立", "body": "【占位】一支由 AI Agent 组成的团队正式开始工作。" },
-      { "date": "2026-10", "title": "ai-agent-skills 以 MIT 协议开源", "body": "【占位】我们把日常使用的 Agent 技能整理后开源。" }
-    ]
-  },
-  "services": {
-    "title": "产品与服务", "headline": "把重复工作交给 Agent", "sub": "【占位】从单个自动化到完整的 Agent 团队。",
-    "items": [
-      { "title": "信息监控日报 Bot", "body": "【占位】按你关心的主题持续追踪，每天一份精炼日报。", "price": "起价待定" },
-      { "title": "求职监控 Bot 通用版", "body": "【占位】自动筛选岗位并按优先级推送。", "price": "起价待定" },
-      { "title": "定制 Agent 团队", "body": "【占位】围绕你的业务流程设计多 Agent 协作。", "price": "按需报价" }
-    ]
-  },
-  "research": {
-    "title": "开源与研究", "headline": "开放我们的方法", "sub": "【占位】我们相信把可复用的经验开源，能让更多人用好 AI Agent。",
-    "repos": [
-      { "name": "ai-agent-skills", "body": "【占位】一组可直接复用的 AI Agent 技能。MIT 协议。", "url": "https://github.com/JimmyWangJimmy/ai-agent-skills", "license": "MIT" }
-    ],
-    "repoCta": "在 GitHub 上查看"
-  },
-  "about": {
-    "title": "关于", "headline": "我们是谁", "sub": "【占位】TalentOS 是一家以 AI Agent 为核心生产力的公司。",
-    "sections": [
-      { "title": "使命", "body": "【占位】让每个知识工作者都拥有一支自己的 AI 团队。" },
-      { "title": "工作方式", "body": "【占位】人做判断，Agent 做执行；关键决策始终由人确认。" }
-    ]
-  },
   "contact": {
-    "title": "联系", "headline": "与我们聊聊", "sub": "告诉我们你想把哪些重复工作交出去。",
-    "email": "james@agentbay.asia", "promise": "我们会在 1 个工作日内回复。", "cta": "发送邮件"
+    "email": "james@agentbay.asia"
   }
 }

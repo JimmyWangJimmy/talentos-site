@@ -1,14 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
-import { dict } from '../i18n.js';
-const { lang, page } = Astro.props; const t = dict[lang]; const c = t[page];
+import { page, meta } from '../copy.js';
+const { lang, slug } = Astro.props;
+const m = meta(lang, slug); const p = page(lang, slug);
+const main = p.sections.filter(s => !s.secondary); const sec = p.sections.filter(s => s.secondary);
 ---
-<Base lang={lang} page={page} title={`${c.title} — ${t.brand}`} description={c.sub}>
+<Base lang={lang} page={slug === 'open-source' ? 'research' : slug} title={m.title} description={m.description}>
 <div class="wrap">
-<section class="hero"><h1>{c.headline}</h1><p class="sub">{c.sub}</p></section>
-<section class="block">
-{page==='services' && <div class="grid">{c.items.map(i => <div><h3>{i.title}</h3><p>{i.body}</p><p class="price">{i.price}</p></div>)}</div>}
-{page==='research' && c.repos.map(r => <div class="item"><h3>{r.name} <span class="date">· {r.license}</span></h3><p>{r.body}</p><div class="btns"><a class="btn" href={r.url} rel="noopener">{c.repoCta} →</a></div></div>)}
-{page==='about' && <div class="grid">{c.sections.map(s => <div><h3>{s.title}</h3><p>{s.body}</p></div>)}</div>}
-{page==='contact' && <div><a class="mail" href={`mailto:${c.email}`}>{c.email}</a><p class="sub">{c.promise}</p><div class="btns"><a class="btn primary" href={`mailto:${c.email}`}>{c.cta}</a></div></div>}
-</section></div></Base>
+<section class="hero"><h1>{p.h1}</h1><div class="sub prose" set:html={p.heroHtml} /></section>
+{main.map(s => <section class="block" id={s.id}><h2>{s.head}</h2><div class="prose" set:html={s.html} /></section>)}
+{sec.map(s => <aside class="slim prose" set:html={s.html} />)}
+</div></Base>

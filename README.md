@@ -7,10 +7,10 @@ To switch to Actions: `gh auth refresh -s workflow` (Jimmy signs in), `mkdir -p 
 `gh api -X PUT repos/JimmyWangJimmy/talentos-site/pages -f build_type=workflow`.
 
 ## Edit content
-All copy lives in `src/content/`:
+Page copy: `src/content/pages/*.md` (same format as the copy deck: `# 中文` then `# English`, one `## ` per block; first block = hero, bold first line = h1; 次要入口/Secondary entry blocks render as a slim bar; `meta.md` table = titles/descriptions). Nav/footer strings:
 - `zh.json` — Chinese (served at `/`)
 - `en.json` — English (served at `/en/`)
-- `theme.json` — colors (accent / ink / muted / bg / line)
+- `theme.json` — colors
 Logo: replace `public/logo.svg` and `public/favicon.svg`.
 Keep the JSON keys; only change values. Run `npm run build` to check, then push to `main`.
 
