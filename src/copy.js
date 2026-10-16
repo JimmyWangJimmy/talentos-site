@@ -3,7 +3,7 @@ import { marked } from 'marked';
 import { url } from './i18n.js';
 const files = import.meta.glob('./content/pages/*.md', { query: '?raw', import: 'default', eager: true });
 const raw = (n) => files[`./content/pages/${n}.md`];
-const routes = { '/': 'home', '/services': 'services', '/open-source': 'research', '/about': 'about', '/contact': 'contact' };
+const routes = { '/': 'home', '/services': 'services', '/open-source': 'research', '/about': 'about', '/contact': 'contact', '/checkup': 'checkup' };
 function fixLinks(html, lang) {
   return html.replace(/href="(\/[^"#]*)(#[^"]*)?"/g, (m, p, h = '') => {
     const k = routes[p.replace(/\/$/, '') || '/'];

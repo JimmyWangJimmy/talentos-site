@@ -117,6 +117,8 @@ h2{font-size:clamp(28px,3.5vw,40px);letter-spacing:-.02em;line-height:1.15;font-
   color:var(--ink);text-decoration:none;font-weight:500;font-size:15px;line-height:1.25;
 }
 .hero .prose a:hover{background:var(--accent-hover);border-color:var(--accent-hover);text-decoration:none}
+.hero .prose a + a{margin-left:12px;background:transparent;border-color:var(--ink)}
+.hero .prose a + a:hover{background:var(--ink);border-color:var(--ink);color:var(--on-dark)}
 .slim{
   background:var(--ink);color:var(--on-dark-muted);
   border-top:none;padding:40px 0;font-size:16px;
@@ -139,7 +141,7 @@ footer a:hover{color:var(--on-dark)}
 <a class="logo" href={url(lang,'home')} aria-label={t.brand}><img src={asset('talentos-wordmark-light.svg')} width="139" height="32" alt={t.brand} /></a>
 <nav aria-label="Main"><ul>
 {keys.map(k => <li><a href={url(lang,k)} aria-current={k===page ? 'page' : undefined}>{t.nav[k]}</a></li>)}
-<li><a class="pill" href={`${url(lang,'contact')}#checkup`}>{t.nav.checkup}</a></li>
+<li><a class="pill" href={url(lang,'checkup')} aria-current={page==='checkup' ? 'page' : undefined}>{t.nav.checkup}</a></li>
 <li><a class="lang" href={url(other,page)} hreflang={other==='zh'?'zh-CN':'en'} lang={other==='zh'?'zh-CN':'en'}>{t.nav.switch}</a></li>
 </ul></nav>
 </div></header>

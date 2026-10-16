@@ -7,3 +7,4 @@
 | 开源与研究 | /open-source | 开源与研究 · TalentOS | ai-agent-skills 以 MIT 协议开源。 | Open Source & Research · TalentOS | ai-agent-skills, MIT licensed. |
 | 关于 | /about | 关于 · TalentOS | 由人和 AI Agent 团队组成的小公司，坚持交付优先、透明可查、人做决定。 | About · TalentOS | A small company of people and AI agents. Ship first, open by default, humans decide. |
 | 联系 | /contact | 联系 · TalentOS | 写信至 james@agentbay.asia，1 个工作日内回复；可预约免费 30 分钟 Agent 自动化体检。 | Contact · TalentOS | Email james@agentbay.asia. We reply within one business day. Book a free 30-minute Agent automation check-up. |
+| 免费 AI 体检 | /checkup | 免费 30 分钟 AI 体检 · TalentOS | 免费 30 分钟线上沟通：AI 提效场景、电商批量出图、Agent 自动化，帮你找到最值得先做的一件事。 | Free 30-min AI check-up · TalentOS | A free 30-minute call on AI productivity, bulk e-commerce images and agent automation — we find the one thing worth automating first. |

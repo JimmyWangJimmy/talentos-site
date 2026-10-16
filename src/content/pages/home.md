@@ -5,7 +5,7 @@
 ## Hero
 **一支 AI Agent 团队，替你把重复的知识工作做完**
 由 Agent 执行，由人把关。
-[了解我们做什么](/services)
+[了解我们做什么](/services) [免费 30 分钟 AI 体检](/checkup)
 
 ## 使命
 让每一家中小企业，都用得起一支可靠、透明的 AI 团队。
@@ -32,7 +32,7 @@
 - **2026-10-16 · 开源**：ai-agent-skills 以 MIT 协议开源。
 
 ## 次要入口（页脚上方细条）
-想知道哪些工作可以交给 Agent？[预约免费 30 分钟 Agent 自动化体检 →](/contact#checkup)
+想知道哪些工作可以交给 Agent？[预约免费 30 分钟 Agent 自动化体检 →](/checkup)
 
 ---
 
@@ -41,7 +41,7 @@
 ## Hero
 **An AI agent team that does your repetitive knowledge work**
 Agents do the work. People make the calls.
-[See what we do](/services)
+[See what we do](/services) [Free 30-min AI check-up](/checkup)
 
 ## Mission
 A reliable, transparent AI team that every small business can afford.
@@ -68,4 +68,4 @@ We open-source the skills we use every day. ai-agent-skills, MIT licensed.
 - **2026-10-16 · Open source**: ai-agent-skills is released under the MIT license.
 
 ## Secondary entry (slim bar above footer)
-Wondering what you could hand to an agent? [Book a free 30-minute Agent automation check-up →](/contact#checkup)
+Wondering what you could hand to an agent? [Book a free 30-minute Agent automation check-up →](/checkup)

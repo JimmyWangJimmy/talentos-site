@@ -34,7 +34,7 @@
 - **不适合**：需要现场判断、没有数据来源，或必须完全零差错且无人复核的工作。
 
 ## 次要入口
-不确定从哪里开始？[预约免费 30 分钟 Agent 自动化体检 →](/contact#checkup)
+不确定从哪里开始？[预约免费 30 分钟 Agent 自动化体检 →](/checkup)
 
 ---
 
@@ -72,4 +72,4 @@ Coming soon to the Grok Bot template marketplace.
 - **Not a fit**: Work that needs on-site judgment, has no data source, or must be error-free without human review.
 
 ## Secondary entry
-Not sure where to start? [Book a free 30-minute Agent automation check-up →](/contact#checkup)
+Not sure where to start? [Book a free 30-minute Agent automation check-up →](/checkup)
