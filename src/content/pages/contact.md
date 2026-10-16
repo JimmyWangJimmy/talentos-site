@@ -6,7 +6,7 @@
 **写信给我们。**
 
 ## 邮箱
-[james@agentbay.asia](mailto:james@agentbay.asia)
+[talentos@agentbay.asia](mailto:talentos@agentbay.asia)
 我们会在 1 个工作日内回复。
 
 ## 预约体检 {#checkup}
@@ -26,7 +26,7 @@
 **Write to us.**
 
 ## Email
-[james@agentbay.asia](mailto:james@agentbay.asia)
+[talentos@agentbay.asia](mailto:talentos@agentbay.asia)
 We reply within one business day.
 
 ## Check-up {#checkup}
