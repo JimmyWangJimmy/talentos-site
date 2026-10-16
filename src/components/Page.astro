@@ -6,8 +6,11 @@ const m = meta(lang, slug); const p = page(lang, slug);
 const main = p.sections.filter(s => !s.secondary); const sec = p.sections.filter(s => s.secondary);
 ---
 <Base lang={lang} page={slug === 'open-source' ? 'research' : slug} title={m.title} description={m.description}>
-<div class="wrap">
-<section class="hero"><h1>{p.h1}</h1><div class="sub prose" set:html={p.heroHtml} /></section>
-{main.map(s => <section class="block" id={s.id}><h2>{s.head}</h2><div class="prose" set:html={s.html} /></section>)}
-{sec.map(s => <aside class="slim prose" set:html={s.html} />)}
-</div></Base>
+<section class="hero"><div class="wrap"><h1>{p.h1}</h1><div class="sub prose" set:html={p.heroHtml} /></div></section>
+{main.map((s, i) => (
+  <section class:list={['block', { 'block-alt': i % 2 === 1 }]} id={s.id}>
+    <div class="wrap"><h2>{s.head}</h2><div class="prose" set:html={s.html} /></div>
+  </section>
+))}
+{sec.map(s => <aside class="slim prose"><div class="wrap" set:html={s.html} /></aside>)}
+</Base>

@@ -1,1 +1,13 @@
-{ "accent": "#D97757", "ink": "#141413", "muted": "#6B6A65", "bg": "#FAF9F6", "line": "#E8E6DF" }
+{
+  "accent": "#D97757",
+  "ink": "#141413",
+  "muted": "#6B6A65",
+  "bg": "#FAF9F6",
+  "line": "#E8E6DF",
+  "surfaceAlt": "#F0EEE6",
+  "mutedSoft": "#87867F",
+  "onDark": "#FAF9F6",
+  "onDarkMuted": "#B0AEA5",
+  "accentHover": "#C66A4C",
+  "inkHover": "#3D3D3A"
+}
