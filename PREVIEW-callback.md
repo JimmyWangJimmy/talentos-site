@@ -6,7 +6,7 @@
 ## API (preview)
 
 - Worker: `https://talentos-callback-api.jimmywangjimmy.workers.dev`
-- Production target: `https://api.agentbay.asia` (DNS CNAME TBD by IT)
+- Boss chose **A**: long-term workers.dev; `api.agentbay.asia` CNAME optional placeholder (no TLS). Brand domain later = option C.
 - Mode: **mock** until `wrangler secret put SPEKO_API_KEY` (no live dial)
 
 ## Local site preview
