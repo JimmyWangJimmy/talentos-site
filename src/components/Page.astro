@@ -1,9 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
+import CallbackForm from './CallbackForm.astro';
 import { page, meta } from '../copy.js';
 const { lang, slug } = Astro.props;
 const m = meta(lang, slug); const p = page(lang, slug);
 const main = p.sections.filter(s => !s.secondary); const sec = p.sections.filter(s => s.secondary);
+const showCallback = slug === 'contact';
 ---
 <Base lang={lang} page={slug === 'open-source' ? 'research' : slug} title={m.title} description={m.description}>
 <section class="hero"><div class="wrap"><h1>{p.h1}</h1><div class="sub prose" set:html={p.heroHtml} /></div></section>
@@ -12,5 +14,6 @@ const main = p.sections.filter(s => !s.secondary); const sec = p.sections.filter
     <div class="wrap"><h2>{s.head}</h2><div class="prose" set:html={s.html} /></div>
   </section>
 ))}
+{showCallback && <CallbackForm lang={lang} />}
 {sec.map(s => <aside class="slim prose"><div class="wrap" set:html={s.html} /></aside>)}
 </Base>
