@@ -3,28 +3,28 @@
 **Branch:** `preview/callback-form`  
 **Do not** merge to `main` or run `./deploy.sh` (production gh-pages) until boss accepts preview.
 
-## Local preview
+## API (preview)
+
+- Worker: `https://talentos-callback-api.jimmywangjimmy.workers.dev`
+- Production target: `https://api.agentbay.asia` (DNS CNAME TBD by IT)
+- Mode: **mock** until `wrangler secret put SPEKO_API_KEY` (no live dial)
+
+## Local site preview
 
 ```bash
 cd /workspace/site/talentos-site
-# Point form at local Worker or workers.dev:
-PUBLIC_CALLBACK_API_BASE=http://127.0.0.1:8787 npm run dev
-# open http://localhost:4321/contact/#callback
+PUBLIC_CALLBACK_API_BASE=https://talentos-callback-api.jimmywangjimmy.workers.dev npm run dev
+# ZH: http://localhost:4321/contact/#callback
 # EN: http://localhost:4321/en/contact/#callback
 ```
 
-Worker (mock without key):
+## Worker
 
 ```bash
 cd /workspace/site/callback-api
-npm install && npx wrangler dev
+npm install
+npx wrangler deploy          # already deployed once
+npx wrangler secret put SPEKO_API_KEY   # production key only — not 测试工程师 key
 ```
 
-## After Worker deploy
-
-```bash
-PUBLIC_CALLBACK_API_BASE=https://talentos-callback-api.<account>.workers.dev npm run build
-# Inspect dist/ only — do not force-push gh-pages for production cutover
-```
-
-Production form base: `https://api.agentbay.asia` (default in `src/config/callback.js`).
+Before first live dial: send number + firstMessage + duration to 测试工程师; boss confirms number.
