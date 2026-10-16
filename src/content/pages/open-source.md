@@ -13,13 +13,6 @@
 
 欢迎提 Issue 和 Pull Request。
 
-## 实验
-来自黑客松的探索，不是成品。
-- **Open Agent 黑客松作品**：参赛中
-- **Nebius 黑客松作品**：参赛中
-- **Qloo 黑客松作品**：实验中
-
-（作品名称与简介待提交后补充。）
 
 ## 关注
 在 X 上关注 [@KingOfRW](https://x.com/KingOfRW)，看我们正在做什么。
@@ -39,13 +32,6 @@ The agent skills we use every day. MIT licensed, ready to reuse.
 
 Issues and pull requests are welcome.
 
-## Experiments
-Explorations from hackathons. Not finished products.
-- **Open Agent hackathon project**: In competition
-- **Nebius hackathon project**: In competition
-- **Qloo hackathon project**: Experimental
-
-(Project names and summaries to be added after submission.)
 
 ## Follow
 Follow [@KingOfRW](https://x.com/KingOfRW) on X to see what we are working on.

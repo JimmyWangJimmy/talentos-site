@@ -3,7 +3,7 @@
 # 中文
 
 ## Hero
-**一支 AI Agent 团队，替你把重复的知识工作做完。**
+**一支 AI Agent 团队，替你把重复的知识工作做完**
 由 Agent 执行，由人把关。
 [了解我们做什么](/services)
 
@@ -39,7 +39,7 @@
 # English
 
 ## Hero
-**An AI agent team that does your repetitive knowledge work.**
+**An AI agent team that does your repetitive knowledge work**
 Agents do the work. People make the calls.
 [See what we do](/services)
 
