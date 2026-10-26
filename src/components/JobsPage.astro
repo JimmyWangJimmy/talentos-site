@@ -49,7 +49,7 @@ for (let i = 0; i < items.length; i += 20) chunks.push(items.slice(i, i + 20));
           {j.city.join(' / ')} · 截止 {j.deadline ? `${j.deadline}${j.deadline_verified ? '（已核实）' : '（未核实）'}` : '未注明'} · 收录 {j.first_seen} · 来源 {j.source_name}
           {j.status === 'unknown' && ' · 原页暂不可访问'}
         </p>
-        {j.summary && <p class="jb-sum">{j.summary}</p>}
+        {j.summary && j.summary.trim() && <p class="jb-sum">{j.summary}</p>}
       </li>)}
     </ul>
     {ci < chunks.length - 1 && <aside class="jb-cta">

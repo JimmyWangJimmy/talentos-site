@@ -21,7 +21,8 @@ fi
 if [ -f "$DIST/jobs/index.html" ] && [ "${ALLOW_EMPTY_JOBS:-0}" != "1" ]; then
   state=$(grep -o 'data-jobs-state="[a-z-]*"' "$DIST/jobs/index.html" | head -1)
   [ "$state" = 'data-jobs-state="ok"' ] || fail "/jobs/ is not publishable ($state): run scripts/build_jobs.py without --allow-small"
-  if grep -qE '(^|[^0-9])1[3-9][0-9]{9}([^0-9]|$)|[0-9]{17}[0-9Xx]([^0-9]|$)|党员|硬伤|适合你|优先投' "$DIST/jobs/index.html"; then
+  # scan visible text only: href values carry long numeric job ids (e.g. 19-digit postid) that look like ID numbers
+  if sed -E 's/href="[^"]*"//g' "$DIST/jobs/index.html" | grep -qE '(^|[^0-9])1[3-9][0-9]{9}([^0-9]|$)|(^|[^0-9])[0-9]{17}[0-9Xx]([^0-9]|$)|党员|硬伤|适合你|优先投'; then
     fail "/jobs/ contains phone/ID-number pattern or profile words"
   fi
 fi

@@ -15,7 +15,7 @@ Usage:
   python3 scripts/build_jobs.py --input FILE --min-count 80 --today 2026-10-30
 then: npm run build
 """
-import argparse, datetime as dt, hashlib, json, os, re, sys, tempfile
+import argparse, csv, datetime as dt, hashlib, json, os, re, sys, tempfile
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,6 +25,12 @@ DEFAULT_INPUTS = [f"{PRODUCT}/export/ai-jobs-seed.json",
                   f"{PRODUCT}/export/ai-jobs-latest.sample.json"]
 OUT = os.path.join(ROOT, "src", "data", "jobs.json")
 BLOCKLIST = f"{PRODUCT}/data/blocklist.txt"
+SEED_COMPANIES = [f"{PRODUCT}/export/seed-companies.csv", f"{PRODUCT}/seeds.csv"]
+# Source-domain allowlist (contract §6). Hosts from the seed CSV's URL column are added at runtime.
+ALLOWED_SOURCES = {"join.qq.com", "jobs.bytedance.com", "zhaopin.meituan.com", "vrfi1sk8a0.jobs.feishu.cn",
+                   # university career sites named in data-contract-v1 §6
+                   "career.sysu.edu.cn", "scdc.jnu.edu.cn", "career.scnu.edu.cn", "career.gdufs.edu.cn",
+                   "scc.pku.edu.cn", "career.cic.tsinghua.edu.cn"}
 TZ = dt.timezone(dt.timedelta(hours=8))
 
 TOP_FIELDS = {"schema", "generated_at", "producer", "is_sample", "run_ref", "items"}
@@ -149,6 +155,20 @@ def scan_pii(j):
     return hits
 
 
+def load_allowed_sources():
+    allowed = set(ALLOWED_SOURCES)
+    for path in SEED_COMPANIES:
+        if os.path.exists(path):
+            with open(path, encoding="utf-8-sig", newline="") as fh:
+                for row in csv.reader(fh):
+                    for cell in row:
+                        if re.match(r"^https?://", cell.strip()):
+                            h = (urlsplit(cell.strip()).hostname or "").lower()
+                            if h:
+                                allowed.add(h)
+    return allowed
+
+
 def load_blocklist():
     ids, domains = set(), set()
     if os.path.exists(BLOCKLIST):
@@ -225,6 +245,14 @@ def main():
         fatal.extend(pii)  # PII is never downgraded
         return report(fatal, warn, src)
 
+    allowed = load_allowed_sources()
+    off = sorted({(urlsplit(j["source_url"]).hostname or "").lower() for j in items} - allowed)
+    if off:
+        gate(f"source domains not in allowlist: {off[:10]}")
+    bad_name = [j["id"] for j in items if j["source_name"].lower() != (urlsplit(j["source_url"]).hostname or "").lower()]
+    if bad_name:
+        gate(f"source_name != source_url host for {len(bad_name)} item(s), e.g. {bad_name[:3]}")
+
     # --- blocklist, dedupe, expiry ---
     bl_ids, bl_domains = load_blocklist()
     seen, by_key, out, dropped = {}, {}, [], {"blocklist": 0, "dup": 0, "expired": 0, "stale": 0}
@@ -233,7 +261,7 @@ def main():
         if j["id"] in bl_ids or any(host == b or host.endswith("." + b) for b in bl_domains):
             dropped["blocklist"] += 1
             continue
-        key = (j["company"].strip(), norm_title(j["title"]), tuple(sorted(j["city"])))
+        key = (j["company"].strip(), norm_title(j["title"]), tuple(sorted(j["city"])), j["recruit_type"])
         prev = seen.get(j["id"]) or by_key.get(key)
         if prev:
             dropped["dup"] += 1
@@ -241,6 +269,8 @@ def main():
             prev["last_verified"] = max(prev["last_verified"], j["last_verified"])
             continue
         j = {k: j[k] for k in JOB_REQ + ["summary"] if k in j}
+        if isinstance(j.get("summary"), str) and not j["summary"].strip():
+            j.pop("summary")  # empty summary -> no summary block on the page
         if j["deadline"] and j["deadline"] < today.isoformat():
             j["status"] = "expired"
         if j["status"] == "expired":
