@@ -17,4 +17,12 @@ fi
 if grep -rIlE '(sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----)' "$DIST" >/dev/null 2>&1; then
   fail "secret-like string in build"
 fi
+# /jobs/: refuse dry-run/sample/empty job data (build it with scripts/build_jobs.py in strict mode first).
+if [ -f "$DIST/jobs/index.html" ] && [ "${ALLOW_EMPTY_JOBS:-0}" != "1" ]; then
+  state=$(grep -o 'data-jobs-state="[a-z-]*"' "$DIST/jobs/index.html" | head -1)
+  [ "$state" = 'data-jobs-state="ok"' ] || fail "/jobs/ is not publishable ($state): run scripts/build_jobs.py without --allow-small"
+  if grep -qE '(^|[^0-9])1[3-9][0-9]{9}([^0-9]|$)|[0-9]{17}[0-9Xx]([^0-9]|$)|党员|硬伤|适合你|优先投' "$DIST/jobs/index.html"; then
+    fail "/jobs/ contains phone/ID-number pattern or profile words"
+  fi
+fi
 echo "predeploy-check: OK ($DIST)"

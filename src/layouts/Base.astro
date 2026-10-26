@@ -4,7 +4,10 @@ import theme from '../content/theme.json';
 const { lang = 'zh', page = 'home', title, description } = Astro.props;
 const t = dict[lang];
 const other = lang === 'zh' ? 'en' : 'zh';
-const keys = ['services', 'research', 'about', 'contact'];
+// zh-only pages (no /en/ twin): nav link only in zh, language switch goes to /en/ home.
+const zhOnly = ['jobs'];
+const keys = lang === 'zh' ? ['services', 'research', 'jobs', 'about', 'contact'] : ['services', 'research', 'about', 'contact'];
+const otherPage = zhOnly.includes(page) ? 'home' : page;
 const desc = description || t.home.description;
 const canonical = new URL(url(lang, page), Astro.site).href;
 ---
@@ -17,7 +20,7 @@ const canonical = new URL(url(lang, page), Astro.site).href;
 <meta name="description" content={desc} />
 <link rel="canonical" href={canonical} />
 <link rel="alternate" hreflang="zh-CN" href={new URL(url('zh', page), Astro.site).href} />
-<link rel="alternate" hreflang="en" href={new URL(url('en', page), Astro.site).href} />
+{!zhOnly.includes(page) && <link rel="alternate" hreflang="en" href={new URL(url('en', page), Astro.site).href} />}
 <link rel="icon" href={asset('favicon.svg')} type="image/svg+xml" />
 <meta name="theme-color" content={theme.bg} />
 <meta property="og:title" content={title} />
@@ -142,7 +145,7 @@ footer a:hover{color:var(--on-dark)}
 <nav aria-label="Main"><ul>
 {keys.map(k => <li><a href={url(lang,k)} aria-current={k===page ? 'page' : undefined}>{t.nav[k]}</a></li>)}
 <li><a class="pill" href={url(lang,'checkup')} aria-current={page==='checkup' ? 'page' : undefined}>{t.nav.checkup}</a></li>
-<li><a class="lang" href={url(other,page)} hreflang={other==='zh'?'zh-CN':'en'} lang={other==='zh'?'zh-CN':'en'}>{t.nav.switch}</a></li>
+<li><a class="lang" href={url(other,otherPage)} hreflang={other==='zh'?'zh-CN':'en'} lang={other==='zh'?'zh-CN':'en'}>{t.nav.switch}</a></li>
 </ul></nav>
 </div></header>
 <main><slot /></main>

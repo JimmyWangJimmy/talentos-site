@@ -2,3 +2,5 @@ node_modules/
 dist/
 .astro/
 .lighthouse/
+src/data/jobs.json
+__pycache__/

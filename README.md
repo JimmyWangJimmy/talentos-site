@@ -22,3 +22,9 @@ Keep the JSON keys; only change values. Run `npm run build` to check, then push 
 5. When the certificate is issued (check `gh api repos/JimmyWangJimmy/talentos-site/pages --jq .https_certificate.state` = `approved`):
    `gh api -X PUT repos/JimmyWangJimmy/talentos-site/pages -F https_enforced=true`
 Do not touch the root domain or MX/SPF/DKIM records.
+
+## AI 岗位库 /jobs/（feat/jobs）
+- 数据：`python3 scripts/build_jobs.py` 读 `/workspace/product/ai-job-board/export/ai-jobs-seed.json`（没有就依次用 `/workspace/job-monitor/export/ai-jobs-latest.json`、示例），按 `talentos.aijobs.v1` 校验、去重、下架过期、扫 PII，写 `src/data/jobs.json`（不进仓库），然后 `npm run build`。
+- 闸门：有效条数 `--min-count`（默认 80，或环境变量 `JOBS_MIN_COUNT`）、示例数据、`generated_at` 不是今天、条数比上次少 30% 以上，任一命中就 exit 1，旧 `jobs.json` 不动。
+- 预演：`--allow-small` 把闸门降成警告，输出标记为 dry-run；`scripts/predeploy-check.sh` 会拒绝发布 dry-run、示例或空的 /jobs/。
+- 页面只有中文版；导航入口只加在中文导航里。CTA 统一跳 `/checkup/?src=jobs&cta=top|inline|footer`，企业入口 `/checkup/?src=jobs-biz&cta=biz` + mailto `[岗位库-企业]`；/checkup/ 把来源写进现有 `page` 字段（`src:cta|utm_source|utm_campaign`）。

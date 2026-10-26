@@ -1,0 +1,105 @@
+---
+// /jobs/ - TalentOS public AI job board (minimal P0: static list + /checkup/ referral + enterprise entry).
+// Data: src/data/jobs.json, written by scripts/build_jobs.py (gitignored, never hand-edited).
+import Base from '../layouts/Base.astro';
+import { url } from '../i18n.js';
+import { CHECKUP_EMAIL } from '../config/checkup.js';
+const found = import.meta.glob('../data/jobs.json', { eager: true, import: 'default' });
+const data = Object.values(found)[0] || null;
+const items = data ? data.items : [];
+const state = !data ? 'empty' : data.dry_run ? 'dry-run' : items.length ? 'ok' : 'empty';
+const closing = new Set(data ? data.closing_this_week : []);
+const week = items.filter(j => closing.has(j.id));
+const checkup = (cta, src = 'jobs') => `${url('zh', 'checkup')}?src=${src}&cta=${cta}`;
+const mail = (subject) => `mailto:${CHECKUP_EMAIL}?subject=${encodeURIComponent(subject)}`;
+const bizMail = mail('[岗位库-企业] 公司名');
+const updated = data ? data.generated_at.slice(0, 16).replace('T', ' ') : '';
+const title = 'AI 岗位库 · 大湾区 AI 校招、实习与社招 | TalentOS';
+const description = '每天由 TalentOS 的 Agent 自动收录、核实的公开 AI 岗位：校招、实习、社招，附原招聘页链接与截止日。';
+const chunks = [];
+for (let i = 0; i < items.length; i += 20) chunks.push(items.slice(i, i + 20));
+---
+<Base lang="zh" page="jobs" title={title} description={description}>
+<section class="hero jb-hero" data-jobs-state={state}><div class="wrap">
+  <p class="eyebrow">AI 岗位库</p>
+  <h1>公开的 AI 岗位，每天核对一次</h1>
+  <p class="sub">只收录公司官网和高校就业网的公开岗位，每条都附原招聘页链接。不用登录，不收简历。</p>
+  {data && <p class="jb-meta">最后更新 {updated}（UTC+8）· 共 {data.count} 条 · 今日新增 {data.new_today} 条 · 工作日每日更新</p>}
+  {data && data.is_sample && <p class="jb-warn">【示例数据】本页为本地预览，不是真实岗位。</p>}
+  <div class="btns">
+    <a class="btn primary" href={checkup('top')}>免费 AI 体检：看看 AI 能帮你做什么</a>
+    <a class="btn secondary" href={checkup('biz', 'jobs-biz')}>企业联系我们</a>
+  </div>
+</div></section>
+
+{week.length > 0 && <section class="block block-alt jb-week"><div class="wrap">
+  <h2>本周截止</h2>
+  <ul class="jb-list">{week.map(j => <li class="jb-item"><a href={j.source_url} target="_blank" rel="noopener nofollow">{j.title}</a> <span class="date">{j.company} · 截止 {j.deadline}</span></li>)}</ul>
+</div></section>}
+
+<section class="block jb-jobs"><div class="wrap">
+  <h2>全部岗位</h2>
+  {items.length === 0 && <p class="jb-empty">岗位数据准备中，请稍后再来。也可以先 <a href={checkup('top')}>预约免费 AI 体检</a>。</p>}
+  {chunks.map((chunk, ci) => <>
+    <ul class="jb-list">
+      {chunk.map(j => <li class={`jb-item${j.status === 'unknown' ? ' jb-unknown' : ''}`} id={`job-${j.id}`}>
+        <h3><a href={j.source_url} target="_blank" rel="noopener nofollow">{j.title}</a></h3>
+        <p class="jb-co">{j.company}<span class="jb-tag">{j.recruit_type}</span><span class="jb-tag">{j.job_family}</span></p>
+        <p class="date">
+          {j.city.join(' / ')} · 截止 {j.deadline ? `${j.deadline}${j.deadline_verified ? '（已核实）' : '（未核实）'}` : '未注明'} · 收录 {j.first_seen} · 来源 {j.source_name}
+          {j.status === 'unknown' && ' · 原页暂不可访问'}
+        </p>
+        {j.summary && <p class="jb-sum">{j.summary}</p>}
+      </li>)}
+    </ul>
+    {ci < chunks.length - 1 && <aside class="jb-cta">
+      <p><strong>找工作之外，你的团队也能用上 AI。</strong>这一页就是 TalentOS 的 Agent 每天自动生成的。</p>
+      <a class="btn primary" href={checkup('inline')}>预约免费 30 分钟 AI 体检</a>
+    </aside>}
+  </>)}
+</div></section>
+
+<section class="block block-alt jb-about"><div class="wrap prose">
+  <h2>收录口径</h2>
+  <ul>
+    <li>只收录公开、无需登录即可访问的岗位：公司官方招聘页、ATS 公开页和高校就业网。</li>
+    <li>每条只展示标题、公司、城市、类型、截止日和原页链接，不复制 JD 原文，不展示任何联系人信息。</li>
+    <li>截止日标「已核实」表示当天打开原页核对过；已过截止日的岗位自动下架。</li>
+    <li><strong>是否仍可投递，以原招聘页为准。</strong></li>
+  </ul>
+  <p>企业想免费收录岗位，或发现信息有误、需要下架：<a href={mail('[岗位库-纠错] 岗位ID')}>发邮件给我们</a>，1 个工作日内处理。</p>
+</div></section>
+
+<section class="block jb-biz" id="biz"><div class="wrap">
+  <h2>企业联系我们</h2>
+  <p class="sub">这一页由 TalentOS 的 Agent 每天自动抓取、核实、生成。想把类似的监测和日报用到你的业务里，先做一次免费 AI 体检。</p>
+  <div class="btns">
+    <a class="btn primary" href={checkup('biz', 'jobs-biz')}>预约免费 AI 体检</a>
+    <a class="btn secondary" href={bizMail}>邮件联系 · {CHECKUP_EMAIL}</a>
+  </div>
+</div></section>
+
+<section class="slim"><div class="wrap">也在找 AI 提效的方法？<a href={checkup('footer')}>预约免费 30 分钟 AI 体检</a></div></section>
+</Base>
+<style>
+.jb-hero{padding-bottom:64px}
+.jb-meta{margin-top:20px;font-size:14px;color:var(--muted)}
+.jb-warn{margin-top:12px;font-size:14px;font-weight:600;color:#A3412A}
+.jb-list{list-style:none}
+.jb-item{padding:22px 0;border-bottom:1px solid var(--line)}
+.jb-item h3{font-size:19px;font-weight:600;line-height:1.35;margin-bottom:6px}
+.jb-item h3 a,.jb-week a{text-decoration:none}
+.jb-item h3 a:hover,.jb-week a:hover{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:4px}
+.jb-co{color:var(--ink);font-size:15px;margin-bottom:4px}
+.jb-tag{display:inline-block;margin-left:10px;padding:1px 8px;font-size:12px;border:1px solid var(--line);border-radius:var(--radius-sm);color:var(--muted)}
+.jb-sum{color:var(--muted);font-size:15px;margin-top:6px}
+.jb-unknown{opacity:.55}
+.jb-week .jb-item{padding:12px 0}
+.jb-empty{color:var(--muted)}
+.jb-empty a{text-decoration-color:var(--accent)}
+.jb-cta{margin:32px 0;padding:24px 28px;border-left:3px solid var(--accent);background:var(--surface-alt);border-radius:var(--radius-sm)}
+.jb-cta p{color:var(--muted);margin-bottom:16px}
+.jb-cta strong{color:var(--ink)}
+.jb-biz .sub{margin-top:0}
+.jb-biz .btns{margin-top:28px}
+</style>

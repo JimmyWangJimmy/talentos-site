@@ -163,6 +163,14 @@ if (f) {
   document.querySelectorAll('[data-pick]').forEach(a => a.addEventListener('click', () => { f.querySelector(`input[value=${a.dataset.pick}]`).checked = true; sync(); }));
   if (location.hash === '#sample') { f.querySelector('input[value=sample5]').checked = true; }
   sync();
+  // Referral attribution (e.g. /checkup/?src=jobs&cta=top from /jobs/): kept in sessionStorage (no cookie),
+  // sent in the existing `page` field as src:cta|utm_source|utm_campaign (Worker trims to 120 chars).
+  const ATTR = 'ck_attr', clip = (v) => (v || '').replace(/[^\w.-]/g, '').slice(0, 30);
+  const q = new URLSearchParams(location.search);
+  if (/^[a-z0-9-]{1,20}$/.test(q.get('src') || '')) {
+    try { sessionStorage.setItem(ATTR, [q.get('src') + ':' + clip(q.get('cta')), clip(q.get('utm_source')), clip(q.get('utm_campaign'))].join('|').slice(0, 120)); } catch {}
+  }
+  const attr = () => { try { return sessionStorage.getItem(ATTR) || ''; } catch { return ''; } };
   f.addEventListener('submit', async (e) => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(f).entries());
@@ -173,7 +181,7 @@ if (f) {
     try {
       const r = await fetch(f.dataset.endpoint, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...d, lang: f.dataset.lang, page: location.pathname }),
+        body: JSON.stringify({ ...d, lang: f.dataset.lang, page: attr() || location.pathname }),
       });
       const j = await r.json().catch(() => ({}));
       if (r.ok && j.ok) { f.reset(); sync(); show(msg.dataset.ok + (j.requestId || ''), false); }
