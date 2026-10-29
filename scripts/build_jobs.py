@@ -45,6 +45,8 @@ ENUMS = {
     "status": {"open", "expired", "unknown"},
 }
 CITIES = {"深圳", "广州", "香港", "上海", "北京", "杭州", "珠海", "东莞", "佛山", "澳门", "远程", "其他"}
+GBA_CITIES = {"深圳", "广州", "珠海", "东莞", "佛山", "香港", "澳门"}
+FAMILY_ORDER = ["算法研究", "工程研发", "产品与设计", "硬件与机器人", "商业与运营", "其他"]
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 GEN_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+08:00$")
 TRACKING = re.compile(r"^(utm_.*|spm|from|source|share.*|ref)$", re.I)
@@ -180,6 +182,63 @@ def load_blocklist():
     return ids, domains
 
 
+def compute_stats(items):
+    """Aggregate observation-block stats/insights from published items (no hand-written numbers)."""
+    from collections import Counter
+    n = len(items)
+    if n == 0:
+        return {
+            "count": 0,
+            "recruit_type": {},
+            "job_family": {},
+            "city_freq": {},
+            "gba_count": 0,
+            "gba_pct": 0,
+            "campus": 0,
+            "intern": 0,
+            "fulltime": 0,
+        }, []
+    recruit = Counter(j["recruit_type"] for j in items)
+    family = Counter(j["job_family"] for j in items)
+    cities = Counter(c for j in items for c in j["city"])
+    gba = sum(1 for j in items if any(c in GBA_CITIES for c in j["city"]))
+    stats = {
+        "count": n,
+        "recruit_type": {k: recruit[k] for k in ("校招", "实习", "社招") if recruit.get(k)},
+        "job_family": {k: family[k] for k in FAMILY_ORDER if family.get(k)},
+        "city_freq": dict(cities.most_common()),
+        "gba_count": gba,
+        "gba_pct": round(100 * gba / n),
+        "campus": recruit.get("校招", 0),
+        "intern": recruit.get("实习", 0),
+        "fulltime": recruit.get("社招", 0),
+    }
+    insights = []
+    if family:
+        top_f, top_fn = family.most_common(1)[0]
+        insights.append(f"方向：{top_f}占 {round(100 * top_fn / n)}%")
+    if cities:
+        top_c, top_cn = cities.most_common(1)[0]
+        insights.append(f"城市：{top_c}出镜 {top_cn} 次")
+    campus, intern, full = stats["campus"], stats["intern"], stats["fulltime"]
+    if campus and intern and abs(campus - intern) <= max(2, int(n * 0.1)):
+        insights.append("结构：校招与实习约各半")
+    elif campus and intern:
+        if campus >= intern * 1.5:
+            insights.append(f"结构：校招为主（{campus}/{n}）")
+        elif intern >= campus * 1.5:
+            insights.append(f"结构：实习为主（{intern}/{n}）")
+        else:
+            insights.append(f"结构：校招 {campus} / 实习 {intern}")
+    elif campus:
+        insights.append(f"结构：以校招为主（{campus} 条）")
+    elif intern:
+        insights.append(f"结构：以实习为主（{intern} 条）")
+    elif full:
+        insights.append(f"结构：以社招为主（{full} 条）")
+    return stats, insights[:3]
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--input", help="export JSON (default: first existing of %s)" % ", ".join(DEFAULT_INPUTS))
@@ -299,6 +358,7 @@ def main():
 
     week_end = (today + dt.timedelta(days=7)).isoformat()
     out.sort(key=lambda j: (j["status"] != "open", j["deadline"] or "9999", j["company"], j["title"]))
+    stats, insights = compute_stats(out)
     result = {
         "schema": "talentos.aijobs.public.v1",
         "dry_run": bool(warn) and a.allow_small,
@@ -310,6 +370,8 @@ def main():
         "count_open": n_open,
         "new_today": sum(1 for j in out if j["first_seen"] == today.isoformat()),
         "closing_this_week": [j["id"] for j in out if j["deadline"] and j["deadline"] <= week_end and j["status"] == "open"],
+        "stats": stats,
+        "insights": insights,
         "items": out,
     }
     os.makedirs(os.path.dirname(a.out), exist_ok=True)

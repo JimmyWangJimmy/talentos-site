@@ -1,5 +1,5 @@
 ---
-// /jobs/ - TalentOS public AI job board (minimal P0: static list + /checkup/ referral + enterprise entry).
+// /jobs/ - TalentOS public AI job board (soft-launch analysis: observation + filters + biz CTAs).
 // Data: src/data/jobs.json, written by scripts/build_jobs.py (gitignored, never hand-edited).
 import Base from '../layouts/Base.astro';
 import { url } from '../i18n.js';
@@ -12,12 +12,32 @@ const closing = new Set(data ? data.closing_this_week : []);
 const week = items.filter(j => closing.has(j.id));
 const checkup = (cta, src = 'jobs') => `${url('zh', 'checkup')}?src=${src}&cta=${cta}`;
 const mail = (subject) => `mailto:${CHECKUP_EMAIL}?subject=${encodeURIComponent(subject)}`;
-const bizMail = mail('[岗位库-企业] 公司名');
+const bizMail = mail('[岗位库-企业] 申请收录');
+const listBiz = checkup('list', 'jobs-biz');
 const updated = data ? data.generated_at.slice(0, 16).replace('T', ' ') : '';
 const title = 'AI 岗位库 · 大湾区 AI 校招、实习与社招 | TalentOS';
 const description = '每天由 TalentOS 的 Agent 自动收录、核实的公开 AI 岗位：校招、实习、社招，附原招聘页链接与截止日。';
 const chunks = [];
 for (let i = 0; i < items.length; i += 20) chunks.push(items.slice(i, i + 20));
+
+// Observation block — numbers only from build_jobs stats/insights (never hand-written).
+const stats = data && data.stats ? data.stats : null;
+const insights = data && Array.isArray(data.insights) ? data.insights : [];
+const campus = stats ? (stats.campus ?? 0) : 0;
+const intern = stats ? (stats.intern ?? 0) : 0;
+const gbaPct = stats ? (stats.gba_pct ?? 0) : 0;
+const familyBars = stats && stats.job_family
+  ? Object.entries(stats.job_family).filter(([, n]) => n > 0)
+  : [];
+const familyMax = familyBars.reduce((m, [, n]) => Math.max(m, n), 0) || 1;
+
+// Filter chip vocabularies — only values present in current data.
+const recruitTypes = [...new Set(items.map(j => j.recruit_type))];
+const jobFamilies = [...new Set(items.map(j => j.job_family))];
+const cities = [...new Set(items.flatMap(j => j.city))].sort((a, b) => {
+  const freq = stats && stats.city_freq ? stats.city_freq : {};
+  return (freq[b] || 0) - (freq[a] || 0) || a.localeCompare(b, 'zh');
+});
 ---
 <Base lang="zh" page="jobs" title={title} description={description}>
 <section class="hero jb-hero" data-jobs-state={state}><div class="wrap">
@@ -29,20 +49,64 @@ for (let i = 0; i < items.length; i += 20) chunks.push(items.slice(i, i + 20));
   <div class="btns">
     <a class="btn primary" href={checkup('top')}>免费 AI 体检：看看 AI 能帮你做什么</a>
     <a class="btn secondary" href={checkup('biz', 'jobs-biz')}>企业联系我们</a>
+    <a class="btn secondary" href={listBiz}>免费收录岗位</a>
   </div>
 </div></section>
 
-{week.length > 0 && <section class="block block-alt jb-week"><div class="wrap">
+{stats && items.length > 0 && <section class="block block-alt jb-observe" aria-label="今日观察"><div class="wrap">
+  <h2>今日观察</h2>
+  <p class="jb-obs-line">最后更新 {updated} · 共 {stats.count} 条 · 校招 {campus} / 实习 {intern} · 大湾区占比 {gbaPct}%</p>
+  {familyBars.length > 0 && <div class="jb-families" role="list">
+    {familyBars.map(([name, n]) => (
+      <div class="jb-fam" role="listitem">
+        <span class="jb-fam-name">{name}</span>
+        <span class="jb-fam-bar" aria-hidden="true"><span style={`width:${Math.round(100 * n / familyMax)}%`}></span></span>
+        <span class="jb-fam-n">{n}</span>
+      </div>
+    ))}
+  </div>}
+  {insights.length > 0 && <ul class="jb-insights">
+    {insights.map(t => <li>{t}</li>)}
+  </ul>}
+</div></section>}
+
+{week.length > 0 && <section class="block jb-week"><div class="wrap">
   <h2>本周截止</h2>
   <ul class="jb-list">{week.map(j => <li class="jb-item"><a href={j.source_url} target="_blank" rel="noopener nofollow">{j.title}</a> <span class="date">{j.company} · 截止 {j.deadline}</span></li>)}</ul>
 </div></section>}
 
 <section class="block jb-jobs"><div class="wrap">
   <h2>全部岗位</h2>
+  {items.length > 0 && <div class="jb-filters" id="jb-filters" data-jobs-filters>
+    <div class="jb-filter-row">
+      <span class="jb-filter-label">类型</span>
+      <button type="button" class="jb-chip is-active" data-filter="type" data-value="">全部</button>
+      {recruitTypes.map(t => <button type="button" class="jb-chip" data-filter="type" data-value={t}>{t}</button>)}
+    </div>
+    <div class="jb-filter-row">
+      <span class="jb-filter-label">方向</span>
+      <button type="button" class="jb-chip is-active" data-filter="family" data-value="">全部</button>
+      {jobFamilies.map(f => <button type="button" class="jb-chip" data-filter="family" data-value={f}>{f}</button>)}
+    </div>
+    <div class="jb-filter-row">
+      <span class="jb-filter-label">城市</span>
+      <button type="button" class="jb-chip is-active" data-filter="city" data-value="">全部</button>
+      {cities.map(c => <button type="button" class="jb-chip" data-filter="city" data-value={c}>{c}</button>)}
+    </div>
+    <p class="jb-filter-count" id="jb-filter-count" hidden></p>
+  </div>}
   {items.length === 0 && <p class="jb-empty">岗位数据准备中，请稍后再来。也可以先 <a href={checkup('top')}>预约免费 AI 体检</a>。</p>}
+  <p class="jb-empty jb-filter-empty" id="jb-filter-empty" hidden>没有符合筛选的岗位。<button type="button" class="jb-clear" id="jb-clear">清除筛选</button></p>
+  <div id="jb-list-root">
   {chunks.map((chunk, ci) => <>
     <ul class="jb-list">
-      {chunk.map(j => <li class={`jb-item${j.status === 'unknown' ? ' jb-unknown' : ''}`} id={`job-${j.id}`}>
+      {chunk.map(j => <li
+        class={`jb-item${j.status === 'unknown' ? ' jb-unknown' : ''}`}
+        id={`job-${j.id}`}
+        data-type={j.recruit_type}
+        data-family={j.job_family}
+        data-city={j.city.join(',')}
+      >
         <h3><a href={j.source_url} target="_blank" rel="noopener nofollow">{j.title}</a></h3>
         <p class="jb-co">{j.company}<span class="jb-tag">{j.recruit_type}</span><span class="jb-tag">{j.job_family}</span></p>
         <p class="date">
@@ -52,11 +116,19 @@ for (let i = 0; i < items.length; i += 20) chunks.push(items.slice(i, i + 20));
         {j.summary && j.summary.trim() && <p class="jb-sum">{j.summary}</p>}
       </li>)}
     </ul>
-    {ci < chunks.length - 1 && <aside class="jb-cta">
-      <p><strong>找工作之外，你的团队也能用上 AI。</strong>这一页就是 TalentOS 的 Agent 每天自动生成的。</p>
-      <a class="btn primary" href={checkup('inline')}>预约免费 30 分钟 AI 体检</a>
-    </aside>}
+    {ci < chunks.length - 1 && (ci % 2 === 0
+      ? <aside class="jb-cta" data-cta-kind="checkup">
+          <p><strong>找工作之外，你的团队也能用上 AI。</strong>这一页就是 TalentOS 的 Agent 每天自动生成的。</p>
+          <a class="btn primary" href={checkup('inline')}>预约免费 30 分钟 AI 体检</a>
+        </aside>
+      : <aside class="jb-cta jb-cta-biz" data-cta-kind="biz">
+          <p><strong>企业可免费收录岗位。</strong>提交公开招聘页，我们用同一套 Agent 核实后展示；顺带可拿一份 AI 体检样品。</p>
+          <a class="btn primary" href={listBiz}>免费收录岗位</a>
+          <a class="btn secondary" href={checkup('inline-biz', 'jobs-biz')}>预约 AI 体检样品</a>
+        </aside>
+    )}
   </>)}
+  </div>
 </div></section>
 
 <section class="block block-alt jb-about"><div class="wrap prose">
@@ -72,9 +144,10 @@ for (let i = 0; i < items.length; i += 20) chunks.push(items.slice(i, i + 20));
 
 <section class="block jb-biz" id="biz"><div class="wrap">
   <h2>企业联系我们</h2>
-  <p class="sub">这一页由 TalentOS 的 Agent 每天自动抓取、核实、生成。想把类似的监测和日报用到你的业务里，先做一次免费 AI 体检。</p>
+  <p class="sub">这一页由 TalentOS 的 Agent 每天自动抓取、核实、生成。想把类似的监测和日报用到你的业务里，先做一次免费 AI 体检。公开岗位也可申请免费收录。</p>
   <div class="btns">
     <a class="btn primary" href={checkup('biz', 'jobs-biz')}>预约免费 AI 体检</a>
+    <a class="btn secondary" href={listBiz}>免费收录岗位</a>
     <a class="btn secondary" href={bizMail}>邮件联系 · {CHECKUP_EMAIL}</a>
   </div>
 </div></section>
@@ -100,6 +173,103 @@ for (let i = 0; i < items.length; i += 20) chunks.push(items.slice(i, i + 20));
 .jb-cta{margin:32px 0;padding:24px 28px;border-left:3px solid var(--accent);background:var(--surface-alt);border-radius:var(--radius-sm)}
 .jb-cta p{color:var(--muted);margin-bottom:16px}
 .jb-cta strong{color:var(--ink)}
+.jb-cta .btn + .btn{margin-left:12px}
+.jb-cta-biz{border-left-color:var(--ink)}
 .jb-biz .sub{margin-top:0}
 .jb-biz .btns{margin-top:28px}
+.jb-observe h2{margin-bottom:12px}
+.jb-obs-line{font-size:15px;color:var(--muted);margin-bottom:20px}
+.jb-families{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-width:520px}
+.jb-fam{display:grid;grid-template-columns:7.5em 1fr 2.5em;align-items:center;gap:10px;font-size:14px}
+.jb-fam-name{color:var(--ink)}
+.jb-fam-bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.jb-fam-bar > span{display:block;height:100%;background:var(--accent);border-radius:4px}
+.jb-fam-n{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.jb-insights{list-style:disc;padding-left:1.25em;color:var(--ink);font-size:15px;line-height:1.7}
+.jb-filters{margin:8px 0 24px;display:flex;flex-direction:column;gap:12px}
+.jb-filter-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.jb-filter-label{font-size:13px;color:var(--muted);min-width:2.5em}
+.jb-chip{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13px;padding:4px 12px;border-radius:999px;cursor:pointer;line-height:1.4}
+.jb-chip:hover{border-color:var(--accent)}
+.jb-chip.is-active{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.jb-filter-count{font-size:13px;color:var(--muted);margin:0}
+.jb-clear{appearance:none;border:0;background:none;color:var(--accent);font:inherit;font-size:inherit;cursor:pointer;text-decoration:underline;padding:0;margin-left:8px}
+.jb-item[hidden],.jb-cta[hidden]{display:none !important}
 </style>
+<script>
+(() => {
+  const root = document.getElementById('jb-filters');
+  if (!root) return;
+  const items = [...document.querySelectorAll('#jb-list-root .jb-item')];
+  const ctas = [...document.querySelectorAll('#jb-list-root .jb-cta')];
+  const empty = document.getElementById('jb-filter-empty');
+  const countEl = document.getElementById('jb-filter-count');
+  const clearBtn = document.getElementById('jb-clear');
+  const state = { type: '', family: '', city: '' };
+
+  const params = new URLSearchParams(location.search);
+  for (const k of ['type', 'family', 'city']) {
+    const v = params.get(k);
+    if (v) state[k] = v;
+  }
+
+  function syncChips() {
+    root.querySelectorAll('.jb-chip').forEach(btn => {
+      const key = btn.getAttribute('data-filter');
+      const val = btn.getAttribute('data-value') || '';
+      btn.classList.toggle('is-active', state[key] === val);
+    });
+  }
+
+  function writeUrl() {
+    const p = new URLSearchParams();
+    if (state.type) p.set('type', state.type);
+    if (state.family) p.set('family', state.family);
+    if (state.city) p.set('city', state.city);
+    const q = p.toString();
+    const next = q ? `${location.pathname}?${q}` : location.pathname;
+    history.replaceState(null, '', next);
+  }
+
+  function apply() {
+    let shown = 0;
+    items.forEach(li => {
+      const okType = !state.type || li.getAttribute('data-type') === state.type;
+      const okFam = !state.family || li.getAttribute('data-family') === state.family;
+      const cities = (li.getAttribute('data-city') || '').split(',').filter(Boolean);
+      const okCity = !state.city || cities.includes(state.city);
+      const show = okType && okFam && okCity;
+      li.hidden = !show;
+      if (show) shown += 1;
+    });
+    // Hide insert CTAs while any filter is active (chunk boundaries no longer meaningful).
+    const filtering = !!(state.type || state.family || state.city);
+    ctas.forEach(c => { c.hidden = filtering; });
+    if (empty) empty.hidden = shown !== 0 || items.length === 0;
+    if (countEl) {
+      if (filtering) {
+        countEl.hidden = false;
+        countEl.textContent = `显示 ${shown} / ${items.length} 条`;
+      } else {
+        countEl.hidden = true;
+      }
+    }
+    syncChips();
+    writeUrl();
+  }
+
+  root.addEventListener('click', e => {
+    const btn = e.target.closest('.jb-chip');
+    if (!btn || !root.contains(btn)) return;
+    const key = btn.getAttribute('data-filter');
+    const val = btn.getAttribute('data-value') || '';
+    state[key] = val;
+    apply();
+  });
+  if (clearBtn) clearBtn.addEventListener('click', () => {
+    state.type = ''; state.family = ''; state.city = '';
+    apply();
+  });
+  apply();
+})();
+</script>
