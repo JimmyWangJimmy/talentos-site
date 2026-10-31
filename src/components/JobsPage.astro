@@ -44,7 +44,7 @@ const cities = [...new Set(items.flatMap(j => j.city))].sort((a, b) => {
   <p class="eyebrow">AI 岗位库</p>
   <h1>公开的 AI 岗位，每天核对一次</h1>
   <p class="sub">只收录公司官网和高校就业网的公开岗位，每条都附原招聘页链接。不用登录，不收简历。</p>
-  {data && <p class="jb-meta">最后更新 {updated}（UTC+8）· 共 {data.count} 条 · 今日新增 {data.new_today} 条 · 工作日每日更新</p>}
+  {data && <p class="jb-meta">最后更新 {updated}（UTC+8）· 收录 {data.count_open ?? data.count} 条 · 工作日每日更新</p>}
   {data && data.is_sample && <p class="jb-warn">【示例数据】本页为本地预览，不是真实岗位。</p>}
   <div class="btns">
     <a class="btn primary" href={checkup('top')}>免费 AI 体检：看看 AI 能帮你做什么</a>

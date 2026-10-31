@@ -368,7 +368,7 @@ def main():
         "today": today.isoformat(),
         "count": len(out),
         "count_open": n_open,
-        "new_today": sum(1 for j in out if j["first_seen"] == today.isoformat()),
+        # no "new_today": first_seen has no reliable history yet, so we don't publish a new-count
         "closing_this_week": [j["id"] for j in out if j["deadline"] and j["deadline"] <= week_end and j["status"] == "open"],
         "stats": stats,
         "insights": insights,
@@ -384,7 +384,7 @@ def main():
     for w in warn:
         print(f"build_jobs: WARN - {w}", file=sys.stderr)
     print(f"build_jobs: {'DRY RUN' if result['dry_run'] else 'OK'} - {src} -> {a.out}: "
-          f"{len(out)} jobs ({n_open} open, {result['new_today']} new today), dropped {dropped}")
+          f"{len(out)} jobs ({n_open} open), dropped {dropped}")
     return 0
 
 

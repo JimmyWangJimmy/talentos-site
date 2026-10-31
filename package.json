@@ -1,1 +1,1 @@
-{"name":"talentos-site","type":"module","private":true,"scripts":{"dev":"astro dev","build":"astro build","preview":"astro preview"},"dependencies":{"astro":"^4.16.0","marked":"^14.1.4"}}
+{"name": "talentos-site", "type": "module", "private": true, "scripts": {"dev": "astro dev", "build": "astro build", "preview": "astro preview", "predeploy-check": "bash scripts/predeploy-check.sh"}, "dependencies": {"astro": "^4.16.0", "marked": "^14.1.4"}}
