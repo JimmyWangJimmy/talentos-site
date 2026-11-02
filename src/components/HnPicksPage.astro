@@ -9,8 +9,14 @@ const items = data ? data.items : [];
 const state = !data ? 'empty' : items.length ? 'ok' : 'empty';
 const stats = data && data.stats ? data.stats : null;
 const updated = data ? String(data.generated_at).slice(0, 16).replace('T', ' ') : '';
+const cov = data && data.coverage ? data.coverage : null;
+const coverageLine = cov
+  ? (cov.complete
+      ? `数据覆盖 HN 评论：${cov.comment_start} 至 ${cov.comment_end}（已抓完）`
+      : `数据覆盖 HN 评论：${cov.comment_start} 至 ${cov.comment_end}，抓取仍在进行（目标至 ${cov.target_end || '今日'}）`)
+  : '';
 const title = 'HN 开源精选 · Hacker News 推荐的 GitHub 仓库 | TalentOS';
-const description = '从 Hacker News 评论里提取被多人推荐的 GitHub 仓库，按独立推荐人数排序。数据可导出给 Agent。';
+const description = '从 Hacker News 评论里提取被多人推荐的 GitHub 仓库，按独立推荐人数排序。数据可导出给 Agent。覆盖区间以页眉为准，抓取未完成前不宣称至今。';
 const checkup = (cta) => `${url('zh', 'checkup')}?src=hn-picks&cta=${cta}`;
 const categories = [...new Set(items.map(i => i.category).filter(Boolean))];
 const chunks = [];
@@ -32,8 +38,9 @@ function fmtDate(ts) {
 <section class="hero hp-hero" data-hn-picks-state={state}><div class="wrap">
   <p class="eyebrow">HN 开源精选</p>
   <h1>Hacker News 里被推荐的仓库</h1>
-  <p class="sub">套路来自 HackerTube / HackerBooks：从社区评论里挖推荐，而不是跟平台热度走。我们抓取 2020 年以来提到 GitHub 链接的 HN 评论，按<strong>独立推荐人数</strong>排序；星标仅供参考，不参与排名。</p>
+  <p class="sub">套路来自 HackerTube / HackerBooks：从社区评论里挖推荐，而不是跟平台热度走。我们按周抓取提到 GitHub 链接的 HN 评论，按<strong>独立推荐人数</strong>排序；星标仅供参考，不参与排名。</p>
   {data && <p class="hp-meta">最后更新 {updated}（UTC+8）· 收录 {data.count} 个仓库 · <a href="/hn-picks/data.json">JSON 导出（给 Agent）</a></p>}
+  {coverageLine && <p class="hp-coverage" role="status">{coverageLine}</p>}
   <div class="btns">
     <a class="btn primary" href="#list">浏览精选</a>
     <a class="btn secondary" href="/hn-picks/data.json">下载 data.json</a>
@@ -93,8 +100,8 @@ function fmtDate(ts) {
             {it.category && <span class="hp-tag">{it.category}</span>}
             {it.language && <span class="hp-tag">{it.language}</span>}
             <span class="hp-soft">★ {fmtStars(it.stars)}（参考）</span>
-            {it.first_ts > 0 && <span class="hp-soft">最早 {fmtDate(it.first_ts)}</span>}
-            {it.last_ts > 0 && <span class="hp-soft">最近 {fmtDate(it.last_ts)}</span>}
+            {it.first_ts > 0 && <span class="hp-soft">评论首现 {fmtDate(it.first_ts)}</span>}
+            {it.last_ts > 0 && <span class="hp-soft">评论末现 {fmtDate(it.last_ts)}</span>}
             {!it.alive && <span class="hp-soft">原页暂不可访问</span>}
           </p>
           {it.hn_links && it.hn_links.length > 0 && (
@@ -110,7 +117,7 @@ function fmtDate(ts) {
 <section class="block block-alt hp-about"><div class="wrap prose">
   <h2>怎么做出来的</h2>
   <ul>
-    <li>用 Algolia 的 HN Search API，按周分片抓取 2020 年至今包含 <code>github.com</code> 的评论。</li>
+    <li>用 Algolia 的 HN Search API，按周分片抓取包含 <code>github.com</code> 的评论（覆盖范围见页眉；未完成前不宣称「至今」）。</li>
     <li>正则提取 <code>owner/repo</code>，按独立评论作者计数；≥2 人或高分帖文链接才入库。</li>
     <li>用 GitHub API 补全描述、语言、星标与 topics，再按关键词打上「AI / Agent」「开发工具」等标签。</li>
     <li>完整 JSON 见 <a href="/hn-picks/data.json">/hn-picks/data.json</a>，可直接交给 Agent 二次筛选。</li>
@@ -125,6 +132,7 @@ function fmtDate(ts) {
 .hp-hero{padding-bottom:64px}
 .hp-meta{margin-top:20px;font-size:14px;color:var(--muted)}
 .hp-meta a{color:var(--ink);text-decoration-color:var(--accent)}
+.hp-coverage{margin-top:10px;font-size:14px;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 12px;display:inline-block}
 .hp-obs-line{font-size:15px;color:var(--muted);margin-bottom:16px}
 .hp-insights{list-style:disc;padding-left:1.25em;font-size:15px;line-height:1.7;color:var(--ink)}
 .hp-filters{margin:8px 0 24px;display:flex;flex-direction:column;gap:12px}

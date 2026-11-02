@@ -3,8 +3,8 @@
   "title": "HN 开源精选",
   "title_en": "HN Open-Source Picks",
   "source": "Hacker News comments & stories via Algolia; metadata via GitHub API",
-  "method": "Rank primarily by distinct HN commenters who linked the repo (2020+); story points secondary. Stars reference only.",
-  "disclaimer": "提及≠背书。夸和踩都计入提及。Algolia 单查询约 1000 条上限，按周分片仍可能漏数。",
+  "method": "Rank primarily by distinct HN commenters who linked the repo (weekly shards 2020-01–2022-04, crawl in progress toward 2026-11); story points as secondary. Stars are reference only.",
+  "disclaimer": "提及≠推荐背书。夸和踩都会计入提及。当前评论数据覆盖 2020-01 至 2022-04，抓取仍在进行（目标至 2026-11）。Algolia 单查询约 1000 条上限，按周分片仍可能漏数据。",
   "count": 582,
   "stats": {
     "ai_agent": 115,
@@ -17138,5 +17138,15 @@
         "https://news.ycombinator.com/item?id=25460275"
       ]
     }
-  ]
+  ],
+  "coverage": {
+    "comment_start": "2020-01",
+    "comment_end": "2022-04",
+    "comment_start_week": "2020-01-01",
+    "comment_end_week": "2022-04-20",
+    "weeks_done": 121,
+    "complete": false,
+    "in_progress": true,
+    "target_end": "2026-11"
+  }
 }

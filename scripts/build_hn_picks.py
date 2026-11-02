@@ -45,6 +45,46 @@ def classify(name: str, desc: str, topics: list[str]) -> str:
     return "其他开源"
 
 
+
+def comment_coverage_from_checkpoint() -> dict:
+    """Honest crawl window from raw/checkpoint.json done_weeks."""
+    from datetime import datetime, timedelta
+    ck_path = Path("/workspace/product/hn-picks/raw/checkpoint.json")
+    if not ck_path.exists():
+        return {
+            "comment_start": "2020-01",
+            "comment_end": "unknown",
+            "complete": False,
+            "in_progress": True,
+            "target_end": "2026-11",
+        }
+    ck = json.loads(ck_path.read_text())
+    weeks = ck.get("done_weeks") or []
+    if not weeks:
+        return {
+            "comment_start": "2020-01",
+            "comment_end": "unknown",
+            "complete": False,
+            "in_progress": True,
+            "target_end": "2026-11",
+        }
+    start = weeks[0][:7]
+    last = datetime.strptime(weeks[-1], "%Y-%m-%d")
+    end = (last + timedelta(days=6)).strftime("%Y-%m")
+    # complete when last week reaches ~now (within 14 days)
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    complete = (now - last).days <= 14
+    return {
+        "comment_start": start,
+        "comment_end": end,
+        "comment_start_week": weeks[0],
+        "comment_end_week": weeks[-1],
+        "weeks_done": len(weeks),
+        "complete": complete,
+        "in_progress": not complete,
+        "target_end": "2026-11",
+    }
+
 def gh_repo(full: str) -> dict | None:
     try:
         out = subprocess.check_output(
@@ -179,13 +219,27 @@ def main():
     ))
 
     tz8 = timezone(timedelta(hours=8))
+    coverage = comment_coverage_from_checkpoint()
+    cov_label = f"{coverage['comment_start']}–{coverage['comment_end']}"
+    method = (
+        f"Rank primarily by distinct HN commenters who linked the repo "
+        f"(weekly shards {cov_label}"
+        + (", crawl in progress toward 2026-11" if coverage.get("in_progress") else "")
+        + "); story points as secondary. Stars are reference only."
+    )
+    disclaimer = (
+        f"提及≠推荐背书。夸和踩都会计入提及。当前评论数据覆盖 {coverage['comment_start']} 至 {coverage['comment_end']}"
+        + ("，抓取仍在进行（目标至 2026-11）。" if coverage.get("in_progress") else "。")
+        + "Algolia 单查询约 1000 条上限，按周分片仍可能漏数据。"
+    )
     payload = {
         "generated_at": datetime.now(tz8).isoformat(timespec="seconds"),
         "title": "HN 开源精选",
         "title_en": "HN Open-Source Picks",
         "source": "Hacker News comments & stories via Algolia; metadata via GitHub API",
-        "method": "Rank primarily by distinct HN commenters who linked the repo (2020+ weekly shards); story points as secondary. Stars are reference only.",
-        "disclaimer": "提及≠推荐背书。夸和踩都会计入提及。Algolia 单查询约 1000 条上限，按周分片仍可能漏数据。",
+        "method": method,
+        "disclaimer": disclaimer,
+        "coverage": coverage,
         "count": len(enriched),
         "stats": {
             "ai_agent": sum(1 for x in enriched if x.get("category") == "AI / Agent"),
@@ -203,6 +257,9 @@ def main():
     (PRODUCT / "hn-picks.json").write_text(text_pretty)
     (SITE_DATA / "hn-picks.json").write_text(text_compact)
     (SITE_PUBLIC / "data.json").write_text(text_pretty)
+    main_data = Path("/workspace/site/talentos-site/src/data")
+    main_data.mkdir(parents=True, exist_ok=True)
+    (main_data / "hn-picks.json").write_text(text_compact)
     print(f"wrote {len(enriched)} items ai={payload['stats']['ai_agent']} dev={payload['stats']['devtools']}", flush=True)
 
 
