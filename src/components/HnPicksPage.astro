@@ -1,0 +1,223 @@
+---
+// /hn-picks/ - HN 开源精选：Hacker News 评论里被多人推荐的 GitHub 仓库
+import Base from '../layouts/Base.astro';
+import { url } from '../i18n.js';
+import { CHECKUP_EMAIL } from '../config/checkup.js';
+const found = import.meta.glob('../data/hn-picks.json', { eager: true, import: 'default' });
+const data = Object.values(found)[0] || null;
+const items = data ? data.items : [];
+const state = !data ? 'empty' : items.length ? 'ok' : 'empty';
+const stats = data && data.stats ? data.stats : null;
+const updated = data ? String(data.generated_at).slice(0, 16).replace('T', ' ') : '';
+const title = 'HN 开源精选 · Hacker News 推荐的 GitHub 仓库 | TalentOS';
+const description = '从 Hacker News 评论里提取被多人推荐的 GitHub 仓库，按独立推荐人数排序。数据可导出给 Agent。';
+const checkup = (cta) => `${url('zh', 'checkup')}?src=hn-picks&cta=${cta}`;
+const categories = [...new Set(items.map(i => i.category).filter(Boolean))];
+const chunks = [];
+for (let i = 0; i < items.length; i += 25) chunks.push(items.slice(i, i + 25));
+function fmtStars(n) {
+  if (n == null) return '—';
+  if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'k';
+  return String(n);
+}
+function fmtDate(ts) {
+  if (!ts) return '';
+  const d = new Date(ts * 1000);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  return `${y}-${m}`;
+}
+---
+<Base lang="zh" page="hn-picks" title={title} description={description}>
+<section class="hero hp-hero" data-hn-picks-state={state}><div class="wrap">
+  <p class="eyebrow">HN 开源精选</p>
+  <h1>Hacker News 里被推荐的仓库</h1>
+  <p class="sub">套路来自 HackerTube / HackerBooks：从社区评论里挖推荐，而不是跟平台热度走。我们抓取 2020 年以来提到 GitHub 链接的 HN 评论，按<strong>独立推荐人数</strong>排序；星标仅供参考，不参与排名。</p>
+  {data && <p class="hp-meta">最后更新 {updated}（UTC+8）· 收录 {data.count} 个仓库 · <a href="/hn-picks/data.json">JSON 导出（给 Agent）</a></p>}
+  <div class="btns">
+    <a class="btn primary" href="#list">浏览精选</a>
+    <a class="btn secondary" href="/hn-picks/data.json">下载 data.json</a>
+    <a class="btn secondary" href={checkup('top')}>免费 AI 体检</a>
+  </div>
+</div></section>
+
+{stats && items.length > 0 && <section class="block block-alt hp-observe" aria-label="数据概览"><div class="wrap">
+  <h2>数据概览</h2>
+  <p class="hp-obs-line">AI / Agent {stats.ai_agent ?? 0} · 开发工具 {stats.devtools ?? 0} · 其他 {stats.other ?? 0} · 推荐人数 ≥5 的有 {stats.recommenders_ge5 ?? 0} 个</p>
+  <ul class="hp-insights">
+    <li>排序键：在评论里贴出该仓库链接的<strong>不同 HN 用户数</strong>（提及≠点赞，夸和踩都算一次提及）。</li>
+    <li>补充信号：曾作为 HN 帖文链接、得分较高的仓库会获得少量加权。</li>
+    <li>来源：Algolia HN Search API；仓库简介与星标来自 GitHub API。非 YC / HN 官方产品。</li>
+  </ul>
+</div></section>}
+
+<section class="block hp-list" id="list"><div class="wrap">
+  <h2>全部精选</h2>
+  {items.length > 0 && <div class="hp-filters" id="hp-filters" data-hp-filters>
+    <div class="hp-filter-row">
+      <span class="hp-filter-label">分类</span>
+      <button type="button" class="hp-chip is-active" data-filter="cat" data-value="">全部</button>
+      {categories.map(c => <button type="button" class="hp-chip" data-filter="cat" data-value={c}>{c}</button>)}
+    </div>
+    <div class="hp-filter-row">
+      <span class="hp-filter-label">门槛</span>
+      <button type="button" class="hp-chip is-active" data-filter="min" data-value="">不限</button>
+      <button type="button" class="hp-chip" data-filter="min" data-value="3">≥3 人推荐</button>
+      <button type="button" class="hp-chip" data-filter="min" data-value="5">≥5 人推荐</button>
+      <button type="button" class="hp-chip" data-filter="min" data-value="10">≥10 人推荐</button>
+    </div>
+    <div class="hp-search-row">
+      <label class="hp-filter-label" for="hp-q">搜索</label>
+      <input id="hp-q" class="hp-q" type="search" placeholder="仓库名 / 描述 / 语言" autocomplete="off" />
+    </div>
+    <p class="hp-filter-count" id="hp-filter-count" hidden></p>
+  </div>}
+  {items.length === 0 && <p class="hp-empty">数据准备中。也可以先 <a href={checkup('top')}>预约免费 AI 体检</a>。</p>}
+  <p class="hp-empty" id="hp-filter-empty" hidden>没有符合筛选的仓库。<button type="button" class="hp-clear" id="hp-clear">清除筛选</button></p>
+  <div id="hp-list-root">
+  {chunks.map((chunk) => (
+    <ul class="hp-items">
+      {chunk.map(it => (
+        <li
+          class={`hp-item${!it.alive ? ' hp-dead' : ''}`}
+          data-cat={it.category || ''}
+          data-rec={it.recommenders || 0}
+          data-text={`${it.repo} ${it.description || ''} ${it.language || ''} ${(it.topics || []).join(' ')}`.toLowerCase()}
+        >
+          <div class="hp-head">
+            <h3><a href={it.url} target="_blank" rel="noopener nofollow">{it.repo}</a></h3>
+            <span class="hp-rec" title="独立 HN 推荐人数">{it.recommenders} 人推荐</span>
+          </div>
+          {it.description && <p class="hp-desc">{it.description}</p>}
+          <p class="hp-meta-line">
+            {it.category && <span class="hp-tag">{it.category}</span>}
+            {it.language && <span class="hp-tag">{it.language}</span>}
+            <span class="hp-soft">★ {fmtStars(it.stars)}（参考）</span>
+            {it.first_ts > 0 && <span class="hp-soft">最早 {fmtDate(it.first_ts)}</span>}
+            {it.last_ts > 0 && <span class="hp-soft">最近 {fmtDate(it.last_ts)}</span>}
+            {!it.alive && <span class="hp-soft">原页暂不可访问</span>}
+          </p>
+          {it.hn_links && it.hn_links.length > 0 && (
+            <p class="hp-hn">HN：{it.hn_links.map((u, i) => <a href={u} target="_blank" rel="noopener nofollow">评论{i + 1}</a>)}</p>
+          )}
+        </li>
+      ))}
+    </ul>
+  ))}
+  </div>
+</div></section>
+
+<section class="block block-alt hp-about"><div class="wrap prose">
+  <h2>怎么做出来的</h2>
+  <ul>
+    <li>用 Algolia 的 HN Search API，按周分片抓取 2020 年至今包含 <code>github.com</code> 的评论。</li>
+    <li>正则提取 <code>owner/repo</code>，按独立评论作者计数；≥2 人或高分帖文链接才入库。</li>
+    <li>用 GitHub API 补全描述、语言、星标与 topics，再按关键词打上「AI / Agent」「开发工具」等标签。</li>
+    <li>完整 JSON 见 <a href="/hn-picks/data.json">/hn-picks/data.json</a>，可直接交给 Agent 二次筛选。</li>
+  </ul>
+  <p>{data && data.disclaimer}</p>
+  <p>纠错或下架：<a href={`mailto:${CHECKUP_EMAIL}?subject=${encodeURIComponent('[HN精选-纠错]')}`}>发邮件</a> · {CHECKUP_EMAIL}</p>
+</div></section>
+
+<section class="slim"><div class="wrap">想把「社区评论 → 精选站」这套路用到你的业务？<a href={checkup('footer')}>预约免费 30 分钟 AI 体检</a></div></section>
+</Base>
+<style>
+.hp-hero{padding-bottom:64px}
+.hp-meta{margin-top:20px;font-size:14px;color:var(--muted)}
+.hp-meta a{color:var(--ink);text-decoration-color:var(--accent)}
+.hp-obs-line{font-size:15px;color:var(--muted);margin-bottom:16px}
+.hp-insights{list-style:disc;padding-left:1.25em;font-size:15px;line-height:1.7;color:var(--ink)}
+.hp-filters{margin:8px 0 24px;display:flex;flex-direction:column;gap:12px}
+.hp-filter-row,.hp-search-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.hp-filter-label{font-size:13px;color:var(--muted);min-width:2.5em}
+.hp-chip{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13px;padding:4px 12px;border-radius:999px;cursor:pointer;line-height:1.4}
+.hp-chip:hover{border-color:var(--accent)}
+.hp-chip.is-active{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.hp-q{flex:1;min-width:200px;max-width:420px;border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 12px;font:inherit;font-size:14px;background:var(--bg);color:var(--ink)}
+.hp-filter-count{font-size:13px;color:var(--muted);margin:0}
+.hp-clear{appearance:none;border:0;background:none;color:var(--accent);font:inherit;cursor:pointer;text-decoration:underline;padding:0;margin-left:8px}
+.hp-items{list-style:none}
+.hp-item{padding:22px 0;border-bottom:1px solid var(--line)}
+.hp-item[hidden]{display:none !important}
+.hp-dead{opacity:.55}
+.hp-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px;margin-bottom:6px}
+.hp-item h3{font-size:19px;font-weight:600;line-height:1.35}
+.hp-item h3 a{text-decoration:none}
+.hp-item h3 a:hover{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:4px}
+.hp-rec{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap}
+.hp-desc{color:var(--muted);font-size:15px;margin-bottom:8px;max-width:52em}
+.hp-meta-line{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.hp-tag{display:inline-block;padding:1px 8px;border:1px solid var(--line);border-radius:var(--radius-sm)}
+.hp-soft{color:var(--muted-soft)}
+.hp-hn{margin-top:8px;font-size:13px;color:var(--muted)}
+.hp-hn a{margin-left:8px;color:var(--ink);text-decoration-color:var(--line)}
+.hp-hn a:hover{text-decoration-color:var(--accent)}
+.hp-empty{color:var(--muted)}
+.hp-about code{font-size:0.92em}
+</style>
+<script>
+(() => {
+  const root = document.getElementById('hp-filters');
+  if (!root) return;
+  const items = [...document.querySelectorAll('#hp-list-root .hp-item')];
+  const empty = document.getElementById('hp-filter-empty');
+  const countEl = document.getElementById('hp-filter-count');
+  const clearBtn = document.getElementById('hp-clear');
+  const q = document.getElementById('hp-q');
+  const state = { cat: '', min: '', q: '' };
+  const params = new URLSearchParams(location.search);
+  if (params.get('cat')) state.cat = params.get('cat');
+  if (params.get('min')) state.min = params.get('min');
+  if (params.get('q')) { state.q = params.get('q'); if (q) q.value = state.q; }
+
+  function syncChips() {
+    root.querySelectorAll('.hp-chip').forEach(btn => {
+      const key = btn.getAttribute('data-filter');
+      const val = btn.getAttribute('data-value') || '';
+      btn.classList.toggle('is-active', state[key] === val);
+    });
+  }
+  function writeUrl() {
+    const p = new URLSearchParams();
+    if (state.cat) p.set('cat', state.cat);
+    if (state.min) p.set('min', state.min);
+    if (state.q) p.set('q', state.q);
+    const qs = p.toString();
+    history.replaceState(null, '', qs ? `${location.pathname}?${qs}` : location.pathname);
+  }
+  function apply() {
+    const minN = state.min ? parseInt(state.min, 10) : 0;
+    const needle = (state.q || '').trim().toLowerCase();
+    let shown = 0;
+    items.forEach(li => {
+      const okCat = !state.cat || li.getAttribute('data-cat') === state.cat;
+      const rec = parseInt(li.getAttribute('data-rec') || '0', 10);
+      const okMin = !minN || rec >= minN;
+      const okQ = !needle || (li.getAttribute('data-text') || '').includes(needle);
+      const show = okCat && okMin && okQ;
+      li.hidden = !show;
+      if (show) shown += 1;
+    });
+    const filtering = !!(state.cat || state.min || needle);
+    if (empty) empty.hidden = shown !== 0 || items.length === 0;
+    if (countEl) {
+      if (filtering) { countEl.hidden = false; countEl.textContent = `显示 ${shown} / ${items.length} 个`; }
+      else countEl.hidden = true;
+    }
+    syncChips();
+    writeUrl();
+  }
+  root.addEventListener('click', e => {
+    const btn = e.target.closest('.hp-chip');
+    if (!btn || !root.contains(btn)) return;
+    const key = btn.getAttribute('data-filter');
+    state[key] = btn.getAttribute('data-value') || '';
+    apply();
+  });
+  if (q) q.addEventListener('input', () => { state.q = q.value || ''; apply(); });
+  if (clearBtn) clearBtn.addEventListener('click', () => {
+    state.cat = ''; state.min = ''; state.q = ''; if (q) q.value = ''; apply();
+  });
+  apply();
+})();
+</script>

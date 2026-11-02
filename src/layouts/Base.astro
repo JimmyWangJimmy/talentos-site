@@ -5,8 +5,8 @@ const { lang = 'zh', page = 'home', title, description } = Astro.props;
 const t = dict[lang];
 const other = lang === 'zh' ? 'en' : 'zh';
 // zh-only pages (no /en/ twin): nav link only in zh, language switch goes to /en/ home.
-const zhOnly = ['jobs'];
-const keys = lang === 'zh' ? ['services', 'research', 'jobs', 'about', 'contact'] : ['services', 'research', 'about', 'contact'];
+const zhOnly = ['jobs', 'hn-picks'];
+const keys = lang === 'zh' ? ['services', 'research', 'jobs', 'hn-picks', 'about', 'contact'] : ['services', 'research', 'about', 'contact'];
 const otherPage = zhOnly.includes(page) ? 'home' : page;
 const desc = description || t.home.description;
 const canonical = new URL(url(lang, page), Astro.site).href;
