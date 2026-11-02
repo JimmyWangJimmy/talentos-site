@@ -4,3 +4,4 @@ dist/
 .lighthouse/
 src/data/jobs.json
 __pycache__/
+src/data/hn-picks.json
