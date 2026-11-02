@@ -46,43 +46,62 @@ def classify(name: str, desc: str, topics: list[str]) -> str:
 
 
 
+
 def comment_coverage_from_checkpoint() -> dict:
-    """Honest crawl window from raw/checkpoint.json done_weeks."""
+    """Honest crawl window(s) from raw/checkpoint.json done_weeks (may be non-contiguous)."""
     from datetime import datetime, timedelta
     ck_path = Path("/workspace/product/hn-picks/raw/checkpoint.json")
+    target_end = datetime.now(timezone.utc).strftime("%Y-%m")
+    empty = {
+        "comment_start": "2020-01",
+        "comment_end": "unknown",
+        "ranges": [],
+        "complete": False,
+        "in_progress": True,
+        "target_end": target_end,
+        "weeks_done": 0,
+    }
     if not ck_path.exists():
-        return {
-            "comment_start": "2020-01",
-            "comment_end": "unknown",
-            "complete": False,
-            "in_progress": True,
-            "target_end": "2026-11",
-        }
+        return empty
     ck = json.loads(ck_path.read_text())
-    weeks = ck.get("done_weeks") or []
+    weeks = sorted(ck.get("done_weeks") or [])
     if not weeks:
-        return {
-            "comment_start": "2020-01",
-            "comment_end": "unknown",
-            "complete": False,
-            "in_progress": True,
-            "target_end": "2026-11",
-        }
-    start = weeks[0][:7]
-    last = datetime.strptime(weeks[-1], "%Y-%m-%d")
-    end = (last + timedelta(days=6)).strftime("%Y-%m")
-    # complete when last week reaches ~now (within 14 days)
+        return empty
+    # collapse contiguous weekly shards into ranges
+    ranges = []
+    rs = weeks[0]
+    prev = datetime.strptime(weeks[0], "%Y-%m-%d")
+    for w in weeks[1:]:
+        cur = datetime.strptime(w, "%Y-%m-%d")
+        if (cur - prev).days > 7:
+            re = (prev + timedelta(days=6)).strftime("%Y-%m")
+            ranges.append({"start": rs[:7], "end": re, "start_week": rs, "end_week": prev.strftime("%Y-%m-%d")})
+            rs = w
+        prev = cur
+    re = (prev + timedelta(days=6)).strftime("%Y-%m")
+    ranges.append({"start": rs[:7], "end": re, "start_week": rs, "end_week": prev.strftime("%Y-%m-%d")})
+    # Prefer displaying the newest range for the banner primary end, and all ranges for honesty
+    newest = ranges[-1]
+    oldest = ranges[0]
     now = datetime.now(timezone.utc).replace(tzinfo=None)
-    complete = (now - last).days <= 14
+    last = datetime.strptime(weeks[-1], "%Y-%m-%d")
+    # complete only if continuous from 2020-01-01 to ~now
+    expected_start = datetime(2020, 1, 1)
+    complete = (
+        len(ranges) == 1
+        and datetime.strptime(weeks[0], "%Y-%m-%d") <= expected_start + timedelta(days=7)
+        and (now - last).days <= 14
+    )
     return {
-        "comment_start": start,
-        "comment_end": end,
+        "comment_start": oldest["start"],
+        "comment_end": newest["end"],
+        "ranges": ranges,
         "comment_start_week": weeks[0],
         "comment_end_week": weeks[-1],
         "weeks_done": len(weeks),
         "complete": complete,
         "in_progress": not complete,
-        "target_end": "2026-11",
+        "target_end": target_end,
     }
 
 def gh_repo(full: str) -> dict | None:
@@ -220,16 +239,20 @@ def main():
 
     tz8 = timezone(timedelta(hours=8))
     coverage = comment_coverage_from_checkpoint()
-    cov_label = f"{coverage['comment_start']}–{coverage['comment_end']}"
+    ranges = coverage.get("ranges") or []
+    if len(ranges) > 1:
+        cov_label = " + ".join(f"{r['start']}–{r['end']}" for r in ranges)
+    else:
+        cov_label = f"{coverage['comment_start']}–{coverage['comment_end']}"
     method = (
         f"Rank primarily by distinct HN commenters who linked the repo "
         f"(weekly shards {cov_label}"
-        + (", crawl in progress toward 2026-11" if coverage.get("in_progress") else "")
+        + (", crawl in progress" if coverage.get("in_progress") else "")
         + "); story points as secondary. Stars are reference only."
     )
     disclaimer = (
-        f"提及≠推荐背书。夸和踩都会计入提及。当前评论数据覆盖 {coverage['comment_start']} 至 {coverage['comment_end']}"
-        + ("，抓取仍在进行（目标至 2026-11）。" if coverage.get("in_progress") else "。")
+        f"提及≠推荐背书。夸和踩都会计入提及。当前评论数据覆盖：{cov_label}"
+        + ("（抓取仍在进行，区间可能不连续）。" if coverage.get("in_progress") else "。")
         + "Algolia 单查询约 1000 条上限，按周分片仍可能漏数据。"
     )
     payload = {

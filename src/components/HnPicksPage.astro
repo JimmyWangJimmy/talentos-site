@@ -10,11 +10,16 @@ const state = !data ? 'empty' : items.length ? 'ok' : 'empty';
 const stats = data && data.stats ? data.stats : null;
 const updated = data ? String(data.generated_at).slice(0, 16).replace('T', ' ') : '';
 const cov = data && data.coverage ? data.coverage : null;
-const coverageLine = cov
-  ? (cov.complete
-      ? `数据覆盖 HN 评论：${cov.comment_start} 至 ${cov.comment_end}（已抓完）`
-      : `数据覆盖 HN 评论：${cov.comment_start} 至 ${cov.comment_end}，抓取仍在进行（目标至 ${cov.target_end || '今日'}）`)
-  : '';
+function coverageLineFrom(cov) {
+  if (!cov) return '';
+  const ranges = Array.isArray(cov.ranges) && cov.ranges.length
+    ? cov.ranges.map(r => `${r.start}–${r.end}`).join('，')
+    : `${cov.comment_start} 至 ${cov.comment_end}`;
+  if (cov.complete) return `数据覆盖 HN 评论：${ranges}（已抓完）`;
+  const gapNote = Array.isArray(cov.ranges) && cov.ranges.length > 1 ? '；区间不连续' : '';
+  return `数据覆盖 HN 评论：${ranges}，抓取仍在进行（目标至 ${cov.target_end || '今日'}${gapNote}）`;
+}
+const coverageLine = coverageLineFrom(cov);
 const title = 'HN 开源精选 · Hacker News 推荐的 GitHub 仓库 | TalentOS';
 const description = '从 Hacker News 评论里提取被多人推荐的 GitHub 仓库，按独立推荐人数排序。数据可导出给 Agent。覆盖区间以页眉为准，抓取未完成前不宣称至今。';
 const checkup = (cta) => `${url('zh', 'checkup')}?src=hn-picks&cta=${cta}`;
