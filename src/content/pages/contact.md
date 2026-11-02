@@ -16,7 +16,7 @@
 
 ## 其他渠道
 - X：[@KingOfRW](https://x.com/KingOfRW)
-- GitHub：[ai-agent-skills](https://github.com/JimmyWangJimmy/ai-agent-skills)
+- GitHub：[ai-agent-skills](https://github.com/TalentOS-AI/ai-agent-skills)
 
 ---
 
@@ -36,4 +36,4 @@ Tell us about your day-to-day work, and we'll point out what agents could take o
 
 ## Elsewhere
 - X: [@KingOfRW](https://x.com/KingOfRW)
-- GitHub: [ai-agent-skills](https://github.com/JimmyWangJimmy/ai-agent-skills)
+- GitHub: [ai-agent-skills](https://github.com/TalentOS-AI/ai-agent-skills)

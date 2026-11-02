@@ -20,7 +20,7 @@
 
 ## 开源
 我们把日常在用的 skill 开源。ai-agent-skills，MIT 协议。
-[在 GitHub 查看](https://github.com/JimmyWangJimmy/ai-agent-skills)
+[在 GitHub 查看](https://github.com/TalentOS-AI/ai-agent-skills)
 
 ## 原则
 - **交付优先**：先看到结果，再谈愿景。
@@ -56,7 +56,7 @@ A reliable, transparent AI team that every small business can afford.
 
 ## Open source
 We open-source the skills we use every day. ai-agent-skills, MIT licensed.
-[View on GitHub](https://github.com/JimmyWangJimmy/ai-agent-skills)
+[View on GitHub](https://github.com/TalentOS-AI/ai-agent-skills)
 
 ## Principles
 - **Ship first**: Results before vision.
