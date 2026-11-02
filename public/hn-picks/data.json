@@ -3,8 +3,8 @@
   "title": "HN 开源精选",
   "title_en": "HN Open-Source Picks",
   "source": "Hacker News comments & stories via Algolia; metadata via GitHub API",
-  "method": "Rank primarily by distinct HN commenters who linked the repo (weekly shards 2020-01–2022-05 + 2024-09–2026-11, crawl in progress); story points as secondary. Stars are reference only.",
-  "disclaimer": "提及≠推荐背书。夸和踩都会计入提及。当前评论数据覆盖：2020-01–2022-05 + 2024-09–2026-11（抓取仍在进行，区间可能不连续）。Algolia 单查询约 1000 条上限，按周分片仍可能漏数据。",
+  "method": "Rank primarily by distinct HN commenters who linked the repo (weekly shards 2020-01–2022-05 + 2024-10–2026-11, crawl in progress); story points as secondary. Stars are reference only.",
+  "disclaimer": "提及≠推荐背书。夸和踩都会计入提及。当前评论数据覆盖：2020-01–2022-05 + 2024-10–2026-11（抓取仍在进行，区间可能不连续）。Algolia 单查询约 1000 条上限，按周分片仍可能漏数据。",
   "coverage": {
     "comment_start": "2020-01",
     "comment_end": "2026-11",
@@ -16,15 +16,15 @@
         "end_week": "2022-05-18"
       },
       {
-        "start": "2024-09",
+        "start": "2024-10",
         "end": "2026-11",
-        "start_week": "2024-09-11",
+        "start_week": "2024-10-30",
         "end_week": "2026-10-28"
       }
     ],
     "comment_start_week": "2020-01-01",
     "comment_end_week": "2026-10-28",
-    "weeks_done": 237,
+    "weeks_done": 230,
     "complete": false,
     "in_progress": true,
     "target_end": "2026-11"
